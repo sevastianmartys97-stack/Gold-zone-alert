@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gold Zone Alert</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #0b0f14;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.app {
+  max-width: 500px;
+  margin: auto;
+  min-height: 100vh;
+  background: #111720;
+}
+
+header {
+  padding: 18px 16px;
+  border-bottom: 1px solid #26303b;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.sub {
+  font-size: 11px;
+  color: #9aa5b3;
+  margin-top: 5px;
+}
+
+.live {
+  background: #173b2a;
+  color: #65e39a;
+  padding: 7px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+}
+
+.price-box {
+  padding: 20px 16px;
+}
+
+.price {
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.status {
+  color: #65e39a;
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+.card {
+  margin: 0 14px 14px;
+  padding: 14px;
+  background: #171e27;
+  border: 1px solid #293440;
+  border-radius: 14px;
+}
+
+.chart {
+  height: 260px;
+  position: relative;
+  overflow: hidden;
+  background:
+  linear-gradient(#ffffff08 1px, transparent 1px),
+  linear-gradient(90deg, #ffffff08 1px, transparent 1px);
+  background-size: 45px 45px;
+}
+
+.line {
+  position: absolute;
+  width: 120%;
+  height: 2px;
+  background: white;
+  transform: rotate(-25deg);
+  top: 48%;
+  left: -10%;
+}
+
+.sell-zone {
+  position: absolute;
+  top: 18%;
+  left: 0;
+  width: 100%;
+  padding: 7px;
+  background: #ff4d4d33;
+  border-top: 1px solid #ff7070;
+  border-bottom: 1px solid #ff7070;
+  color: #ff9090;
+  font-size: 11px;
+}
+
+.daily-open {
+  position: absolute;
+  top: 48%;
+  left: 0;
+  width: 100%;
+  border-top: 1px dashed #e5c75f;
+  padding: 4px;
+  color: #e5c75f;
+  font-size: 11px;
+}
+
+.buy-zone {
+  position: absolute;
+  bottom: 15%;
+  left: 0;
+  width: 100%;
+  padding: 7px;
+  background: #39d98a33;
+  border-top: 1px solid #39d98a;
+  border-bottom: 1px solid #39d98a;
+  color: #75e9ad;
+  font-size: 11px;
+}
+
+.zone-container {
+  display: flex;
+  gap: 10px;
+  margin: 14px;
+}
+
+.zone {
+  flex: 1;
+  padding: 14px;
+  border-radius: 12px;
+  background: #171e27;
+  border: 1px solid #293440;
+}
+
+.buy {
+  border-color: #297b55;
+}
+
+.sell {
+  border-color: #7d3c43;
+}
+
+.zone h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+
+.zone-price {
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.small {
+  font-size: 10px;
+  color: #9aa5b3;
+  margin-top: 7px;
+}
+
+.alert {
+  margin: 14px;
+  padding: 14px;
+  background: #192f26;
+  border: 1px solid #2f7756;
+  border-radius: 12px;
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
+  margin: 14px;
+}
+
+button {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  border-radius: 11px;
+  background: #273240;
+  color: white;
+  font-weight: bold;
+}
+
+button.active {
+  background: #256448;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  color: #687586;
+  font-size: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<header>
+  <div>
+    <h1>GOLD ZONE ALERT</h1>
+    <div class="sub">XAUUSD • M15 / H1 / H4</div>
+  </div>
+
+  <div class="live">● LIVE</div>
+</header>
+
+<div class="price-box">
+  <div class="sub">CURRENT XAUUSD PRICE</div>
+  <div class="price" id="price">4,637.20</div>
+  <div class="status">▲ +12.40</div>
+</div>
+
+<div class="card">
+
+<div class="chart">
+
+<div class="line"></div>
+
+<div class="sell-zone">
+🔴 SELL ZONE • 4,665 – 4,680
+</div>
+
+<div class="daily-open">
+🟡 DAILY OPEN • 4,625
+</div>
+
+<div class="buy-zone">
+🟢 BUY ZONE • 4,610 – 4,615
+</div>
+
+</div>
+
+</div>
+
+<div class="alert">
+<b>✓ MARKET STATUS</b>
+<div class="small">
+Harga masih berada di antara BUY dan SELL zone. Tunggu confirmation.
+</div>
+</div>
+
+<div class="zone-container">
+
+<div class="zone buy">
+<h3>🟢 BUY ZONE</h3>
+<div class="zone-price">4610 – 4615</div>
+<div class="small">
+SL: 4598<br>
+TP: 4635 / 4650
+</div>
+</div>
+
+<div class="zone sell">
+<h3>🔴 SELL ZONE</h3>
+<div class="zone-price">4665 – 4680</div>
+<div class="small">
+SL: 4692<br>
+TP: 4645 / 4630
+</div>
+</div>
+
+</div>
+
+<div class="buttons">
+
+<button class="active" id="alertButton"
+onclick="toggleAlert()">
+🔔 ALERT ON
+</button>
+
+<button onclick="testAlert()">
+⚡ TEST ALERT
+</button>
+
+</div>
+
+<footer>
+GOLD ZONE ALERT • Prototype V1<br>
+Bukan signal trading automatik
+</footer>
+
+</div>
+
+<script>
+
+let alertStatus = true;
+
+function toggleAlert() {
+
+alertStatus = !alertStatus;
+
+let button = document.getElementById("alertButton");
+
+if(alertStatus) {
+
+button.innerHTML = "🔔 ALERT ON";
+button.classList.add("active");
+
+} else {
+
+button.innerHTML = "🔕 ALERT OFF";
+button.classList.remove("active");
+
+}
+
+}
+
+function testAlert() {
+
+if(alertStatus) {
+
+alert("⚡ GOLD ALERT!\n\nXAUUSD sedang menghampiri BUY ZONE 4610 – 4615");
+
+} else {
+
+alert("Alert masih OFF");
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
