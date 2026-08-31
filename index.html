@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gold Auto Zone V6.3.8</title>
+<title>Gold Auto Zone V6.3.9</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#0a0f14;color:#fff;font-family:Arial,sans-serif}
@@ -219,7 +219,7 @@ style="width:100%;height:100%;border:0" scrolling="no"></iframe>
 </div>
 
 <footer>
-V6.3.4 PWA • V6.3.3 Stable Core + Intraday H1/M15/M5 • TP1 100 / TP2 150 / TP3 200 pips.<br>
+V6.3.9 PWA • XAUS Candle Hybrid + Intraday H1/M15/M5 • TP1 100 / TP2 150 / TP3 200 pips.<br>
 TP/SL ialah cadangan teknikal daripada struktur zone, bukan jaminan hasil.
 </footer>
 </div>
@@ -305,24 +305,66 @@ async function getPrice(){
  localStorage.setItem("v632_last_tick",JSON.stringify(tick));
  return tick;
 }
+function normaliseXausPoints(d){
+ const arr = (d&&Array.isArray(d.points)) ? d.points : (d&&Array.isArray(d.data) ? d.data : (d&&Array.isArray(d.bars) ? d.bars : []));
+ return arr.map(x=>({
+  openTime: x.openTime || x.time || x.datetime || (Number.isFinite(Number(x.t)) ? new Date(Number(x.t)*1000).toISOString() : null),
+  open: Number(x.o ?? x.open), high: Number(x.h ?? x.high), low: Number(x.l ?? x.low), close: Number(x.c ?? x.close),
+  volume: Number(x.v ?? x.volume ?? 0), isOpen:false
+ })).filter(x=>[x.open,x.high,x.low,x.close].every(Number.isFinite));
+}
+
+function aggregateH4(hourly){
+ const out=[];
+ for(let i=0;i+3<hourly.length;i+=4){
+  const g=hourly.slice(i,i+4);
+  out.push({openTime:g[0].openTime,open:g[0].open,high:Math.max(...g.map(x=>x.high)),low:Math.min(...g.map(x=>x.low)),close:g[g.length-1].close,volume:g.reduce((a,x)=>a+(Number(x.volume)||0),0),isOpen:false});
+ }
+ return out;
+}
+
+async function getXausCandles(tf){
+ let interval=tf, range='1mo';
+ if(tf==='4h') interval='1h';
+ if(tf==='5m' || tf==='15m') range='5d';
+ const url='https://xaus.com/api/v1/chart?symbol=xau&range='+range+'&interval='+interval+'&fresh='+Date.now();
+ const d=await getJSONFast(url,6500);
+ let bars=normaliseXausPoints(d);
+ if(bars.length && bars[0].openTime && bars[bars.length-1].openTime && new Date(bars[0].openTime)>new Date(bars[bars.length-1].openTime)) bars.reverse();
+ if(tf==='4h') bars=aggregateH4(bars);
+ if(bars.length<25) throw new Error('XAUS '+tf+' bars insufficient');
+ return bars.slice(-240);
+}
+
+async function getBiquoteCandles(tf,limit=240){
+ const d=await getJSONFast(API+'/XAUUSD/ohlc?interval='+tf+'&limit='+limit,6500);
+ if(!d||!Array.isArray(d.bars)) throw new Error('Biquote OHLC format');
+ const bars=d.bars.filter(b=>!b.isOpen).slice().reverse();
+ if(!bars.length) throw new Error('Empty Biquote OHLC');
+ return bars;
+}
+
 async function getCandles(tf){
- const key="v61_"+tf+"_bars";
+ const key='v639_'+tf+'_bars';
+ // V6.3.9: XAUS chart is primary candle API; Biquote is fallback only.
  try{
-  const d=await getJSON(API+"/XAUUSD/ohlc?interval="+tf+"&limit=240",2);
-  if(!d||!Array.isArray(d.bars)) throw new Error("OHLC format error");
-  const bars=d.bars.filter(b=>!b.isOpen).slice().reverse();
-  if(!bars.length) throw new Error("Empty OHLC");
+  const bars=await getXausCandles(tf);
   localStorage.setItem(key,JSON.stringify(bars));
+  localStorage.setItem('v61_'+tf+'_bars',JSON.stringify(bars));
   return bars;
- }catch(e){
-  const cached=localStorage.getItem(key);
-  if(cached){
-   try{
-    const bars=JSON.parse(cached);
-    if(Array.isArray(bars)&&bars.length) return bars;
-   }catch(_){}
+ }catch(xausErr){
+  try{
+   const bars=await getBiquoteCandles(tf,240);
+   localStorage.setItem(key,JSON.stringify(bars));
+   localStorage.setItem('v61_'+tf+'_bars',JSON.stringify(bars));
+   return bars;
+  }catch(bqErr){
+   for(const k of [key,'v61_'+tf+'_bars']){
+    const cached=localStorage.getItem(k);
+    if(cached){ try{ const bars=JSON.parse(cached); if(Array.isArray(bars)&&bars.length) return bars; }catch(_){} }
+   }
+   throw xausErr;
   }
-  throw e;
  }
 }
 
@@ -585,25 +627,28 @@ function resetTracker(){
  alert("Tracker TP sudah reset.");
 }
 
-async 
 async function getSignalCandles(tf){
- // Fast, non-blocking signal scan. It does NOT delay the main H1/H4 engine.
+ const key='v639sig_'+tf;
  try{
-  const d=await getJSON(API+"/XAUUSD/ohlc?interval="+tf+"&limit=80",0);
-  if(!d||!Array.isArray(d.bars)) throw new Error("signal OHLC");
-  const bars=d.bars.filter(b=>!b.isOpen).slice().reverse();
-  if(bars.length<25) throw new Error("not enough signal bars");
-  localStorage.setItem("v63sig_"+tf,JSON.stringify(bars));
-  return bars;
- }catch(e){
-  const c=localStorage.getItem("v63sig_"+tf);
-  if(c){
-   try{
-    const bars=JSON.parse(c);
-    if(Array.isArray(bars)&&bars.length>=25) return bars;
-   }catch(_){}
+  const bars=await getXausCandles(tf);
+  if(bars.length<25) throw new Error('signal bars');
+  localStorage.setItem(key,JSON.stringify(bars));
+  localStorage.setItem('v63sig_'+tf,JSON.stringify(bars));
+  return bars.slice(-80);
+ }catch(xausErr){
+  try{
+   const bars=await getBiquoteCandles(tf,80);
+   if(bars.length<25) throw new Error('signal fallback bars');
+   localStorage.setItem(key,JSON.stringify(bars));
+   localStorage.setItem('v63sig_'+tf,JSON.stringify(bars));
+   return bars;
+  }catch(e){
+   for(const k of [key,'v63sig_'+tf]){
+    const c=localStorage.getItem(k);
+    if(c){ try{ const bars=JSON.parse(c); if(Array.isArray(bars)&&bars.length>=25) return bars; }catch(_){} }
+   }
+   throw xausErr;
   }
-  throw e;
  }
 }
 
@@ -835,7 +880,7 @@ async function runAnalysis(){
    LIVE_PRICE_OK ? "🟢 LIVE • "+PRICE_SOURCE : "⚠️ STALE/CACHED • Alerts & TP tracker paused";
 
   st.innerHTML=LIVE_PRICE_OK
-   ? "✅ Live price connected • Scanning H1/H4 zone..."
+   ? "✅ Live price connected • Scanning H1/H4 via XAUS..."
    : "⚠️ Live price reconnecting • showing last valid price sementara...";
  }else{
   LIVE_PRICE_OK=false;
@@ -846,8 +891,8 @@ async function runAnalysis(){
 
  // STEP 2 — CANDLES. These are separate from live-price display.
  const candleResults=await Promise.allSettled([
-  Promise.race([getCandles("1h"),new Promise((_,rej)=>setTimeout(()=>rej(new Error("H1 timeout")),8000))]),
-  Promise.race([getCandles("4h"),new Promise((_,rej)=>setTimeout(()=>rej(new Error("H4 timeout")),8000))])
+  Promise.race([getCandles("1h"),new Promise((_,rej)=>setTimeout(()=>rej(new Error("H1 timeout")),7000))]),
+  Promise.race([getCandles("4h"),new Promise((_,rej)=>setTimeout(()=>rej(new Error("H4 timeout")),7000))])
  ]);
 
  if(candleResults[0].status==="fulfilled") h1=candleResults[0].value;
@@ -923,9 +968,9 @@ async function runAnalysis(){
   st.innerHTML="⚠️ Harga cache digunakan • ALERT & TP TRACKER dipause sehingga live kembali.";
  }else if(BUY&&SELL){
   const closer=(CURRENT-BUY.high<SELL.low-CURRENT)?"BUY":"SELL";
-  st.innerHTML="✅ V6.3.8 LIVE • "+closer+" zone lebih dekat • M5/M15 ready scan aktif.";
+  st.innerHTML="✅ V6.3.9 LIVE • "+closer+" zone lebih dekat • M5/M15 ready scan aktif.";
  }else{
-  st.innerHTML="✅ V6.3.8 LIVE • Menunggu clean H1/H4 zone.";
+  st.innerHTML="✅ V6.3.9 LIVE • Menunggu clean H1/H4 zone.";
  }
  analysisBusy=false;
 }
@@ -970,7 +1015,7 @@ function showInstantCachedPrice(){
 
 function startBackgroundZoneScan(){
  // Let price render first; zone scan starts quietly after the UI is already usable.
- setTimeout(()=>runAnalysis().catch(()=>{}),1800);
+ setTimeout(()=>runAnalysis().catch(()=>{}),900);
 }
 
 async function autoStartApp(){
