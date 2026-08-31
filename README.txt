@@ -1,5 +1,6 @@
-GOLD AUTO ZONE V6.3.9 PWA
-Primary candle API: XAUS /api/v1/chart. Fallback: Biquote OHLC.
-Live price: XAUS primary with Biquote fallback.
-H4 is aggregated from XAUS 1H candles.
-Price loop 2s; zone scan 45s.
+GOLD AUTO ZONE V6.4.0
+- Visible LIVE AUTO UPDATE 2s indicator
+- Visible Last tick timestamp
+- XAUS hybrid price/candle feed with Biquote fallback
+- Intraday H1/M15/M5 retained
+- Service worker cache bumped to V6.4.0

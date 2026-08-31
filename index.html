@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gold Auto Zone V6.3.9</title>
+<title>Gold Auto Zone V6.4.0</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#0a0f14;color:#fff;font-family:Arial,sans-serif}
@@ -102,7 +102,7 @@ footer{padding:15px;text-align:center;font-size:10px;color:#687482}
 
 <div class="app">
 <header>
- <div><h1>🥇 GOLD AUTO ZONE V6.3.8 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
+ <div><h1>🥇 GOLD AUTO ZONE V6.4.0 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
  <div class="live">● AUTO</div>
 </header>
 
@@ -110,6 +110,7 @@ footer{padding:15px;text-align:center;font-size:10px;color:#687482}
  <div class="sub">CURRENT XAUUSD</div>
  <div class="price" id="currentPrice">Loading...</div>
  <div class="market" id="marketState">Reading market...</div>
+ <div class="sub" id="tickState" style="margin-top:5px;color:#94a3b8">⚡ AUTO UPDATE: 2s • Last tick: —</div>
  <div class="badges">
   <div class="badge" id="h1Bias">H1: —</div>
   <div class="badge" id="h4Bias">H4: —</div>
@@ -219,7 +220,7 @@ style="width:100%;height:100%;border:0" scrolling="no"></iframe>
 </div>
 
 <footer>
-V6.3.9 PWA • XAUS Candle Hybrid + Intraday H1/M15/M5 • TP1 100 / TP2 150 / TP3 200 pips.<br>
+V6.4.0 PWA • XAUS Hybrid • LIVE PRICE AUTO 2s • Intraday H1/M15/M5 • TP1 100 / TP2 150 / TP3 200 pips.<br>
 TP/SL ialah cadangan teknikal daripada struktur zone, bukan jaminan hasil.
 </footer>
 </div>
@@ -877,7 +878,8 @@ async function runAnalysis(){
    minimumFractionDigits:2,maximumFractionDigits:2
   });
   document.getElementById("marketState").innerHTML=
-   LIVE_PRICE_OK ? "🟢 LIVE • "+PRICE_SOURCE : "⚠️ STALE/CACHED • Alerts & TP tracker paused";
+   LIVE_PRICE_OK ? "🟢 LIVE • "+PRICE_SOURCE+" • AUTO 2s" : "⚠️ STALE/CACHED • Alerts & TP tracker paused";
+  if(LIVE_PRICE_OK) updateTickState(PRICE_SOURCE);
 
   st.innerHTML=LIVE_PRICE_OK
    ? "✅ Live price connected • Scanning H1/H4 via XAUS..."
@@ -968,14 +970,22 @@ async function runAnalysis(){
   st.innerHTML="⚠️ Harga cache digunakan • ALERT & TP TRACKER dipause sehingga live kembali.";
  }else if(BUY&&SELL){
   const closer=(CURRENT-BUY.high<SELL.low-CURRENT)?"BUY":"SELL";
-  st.innerHTML="✅ V6.3.9 LIVE • "+closer+" zone lebih dekat • M5/M15 ready scan aktif.";
+  st.innerHTML="✅ V6.4.0 LIVE • "+closer+" zone lebih dekat • M5/M15 ready scan aktif.";
  }else{
-  st.innerHTML="✅ V6.3.9 LIVE • Menunggu clean H1/H4 zone.";
+  st.innerHTML="✅ V6.4.0 LIVE • Menunggu clean H1/H4 zone.";
  }
  analysisBusy=false;
 }
 // V6.3.7: live-price loop every 2s; every fresh price immediately checks zone/TP/SL-side validity. Zone engine remains 45s.
 let fastPriceBusy=false;
+function updateTickState(source){
+ try{
+  const now=new Date();
+  const t=now.toLocaleTimeString("en-GB",{hour12:false,timeZone:"Asia/Kuala_Lumpur"});
+  const el=document.getElementById("tickState");
+  if(el) el.textContent="⚡ AUTO UPDATE: 2s • Last tick: "+t+(source?" • "+source:"");
+ }catch(_){ }
+}
 async function fastPriceRefresh(){
  if(fastPriceBusy)return;
  fastPriceBusy=true;
@@ -987,6 +997,7 @@ async function fastPriceRefresh(){
    PRICE_SOURCE=tick._feed || tick.source || "market feed";
    document.getElementById("currentPrice").innerHTML=CURRENT.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
    document.getElementById("marketState").innerHTML="🟢 LIVE • "+PRICE_SOURCE+" • AUTO 2s";
+   updateTickState(PRICE_SOURCE);
    // Update only lightweight displays against the latest price.
    try{ updateValidity(); updateLiveDistance(); checkAlerts(); updateTracker(); }catch(_){ }
   }
