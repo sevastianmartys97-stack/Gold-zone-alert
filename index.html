@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gold Auto Zone V6.3.1</title>
+<title>Gold Auto Zone V6.3.2</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#0a0f14;color:#fff;font-family:Arial,sans-serif}
@@ -72,7 +72,7 @@ footer{padding:15px;text-align:center;font-size:10px;color:#687482}
 
 <div class="app">
 <header>
- <div><h1>🥇 GOLD AUTO ZONE V6.3.1 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
+ <div><h1>🥇 GOLD AUTO ZONE V6.3.2 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
  <div class="live">● AUTO</div>
 </header>
 
@@ -168,7 +168,7 @@ style="width:100%;height:100%;border:0" scrolling="no"></iframe>
 </div>
 
 <footer>
-V6.3.1 PWA • Price Loading FIX + Stable H1/H4 Auto Zone + M5/M15 Ready Signal • TP1 100 / TP2 150 / TP3 200 pips.<br>
+V6.3.2 PWA • FAST PRICE FIX + Stable H1/H4 Auto Zone + M5/M15 Ready Signal • TP1 100 / TP2 150 / TP3 200 pips.<br>
 TP/SL ialah cadangan teknikal daripada struktur zone, bukan jaminan hasil.
 </footer>
 </div>
@@ -206,55 +206,51 @@ async function getJSON(url, retries=2){
  throw lastErr||new Error("Network error");
 }
 
-async function getPrice(){
- const readGoldAPI=async()=>{
-  const d=await getJSON("https://api.gold-api.com/price/XAU?fresh="+Date.now(),1);
-  const p=Number(d.price);
-  if(!Number.isFinite(p)) throw new Error("Gold API price format");
-  return {
-   mid:p,
-   marketState:"live",
-   source:"Gold-API",
-   _feed:"Gold-API",
-   _fresh:true,
-   updatedAt:d.updatedAt||null
-  };
- };
 
- const readXAUS=async()=>{
-  const d=await getJSON("https://xaus.com/api/v1/spot?compact=1&fresh="+Date.now(),1);
-  const p=Number(d.spot_usd_oz ?? (d.xau&&d.xau.price));
-  if(!Number.isFinite(p)) throw new Error("XAUS price format");
-  const state=(d.data_state&&d.data_state.status)||"";
-  const age=Number(d.data_state&&d.data_state.age_seconds);
-  const fresh=(state==="fresh") || (d.stale!==true && (!Number.isFinite(age) || age<=180));
-  if(!fresh) throw new Error("XAUS stale");
-  return {mid:p,marketState:"live",source:"XAUS.com",_feed:"XAUS.com",_fresh:true,_age:Number.isFinite(age)?age:null};
- };
-
- const readBiquote=async()=>{
-  const d=await getJSON(API+"/XAUUSD",1);
-  const p=Number(d.mid);
-  if(!Number.isFinite(p)) throw new Error("Biquote price format");
-  if(d.stale===true) throw new Error("Biquote stale");
-  return {...d,mid:p,_feed:"Biquote",_fresh:true};
- };
-
- let tick;
+async function getJSONFast(url,timeoutMs=6000){
+ const controller=new AbortController();
+ const timer=setTimeout(()=>controller.abort(),timeoutMs);
  try{
-  tick=await Promise.any([readGoldAPI(),readXAUS(),readBiquote()]);
- }catch(_){
-  try{ tick=await readGoldAPI(); }
-  catch(e0){
-   try{ tick=await readXAUS(); }
-   catch(e1){ tick=await readBiquote(); }
+  const r=await fetch(url,{cache:"no-store",signal:controller.signal});
+  if(!r.ok) throw new Error("HTTP "+r.status);
+  return await r.json();
+ }finally{
+  clearTimeout(timer);
+ }
+}
+
+async function getPrice(){
+ const sources=[
+  async()=>{
+   const d=await getJSONFast("https://xaus.com/api/v1/spot?compact=1&fresh="+Date.now(),6000);
+   const p=Number(d.spot_usd_oz ?? (d.xau&&d.xau.price));
+   if(!Number.isFinite(p)) throw new Error("XAUS format");
+   const state=(d.data_state&&d.data_state.status)||"";
+   const age=Number(d.data_state&&d.data_state.age_seconds);
+   const fresh=(state==="fresh") || (d.stale!==true && (!Number.isFinite(age)||age<=180));
+   if(!fresh) throw new Error("XAUS stale");
+   return {mid:p,marketState:"live",source:"XAUS.com",_feed:"XAUS.com",_fresh:true};
+  },
+  async()=>{
+   const d=await getJSONFast(API+"/XAUUSD",5500);
+   const p=Number(d.mid);
+   if(!Number.isFinite(p)||d.stale===true) throw new Error("Biquote unavailable");
+   return {...d,mid:p,_feed:"Biquote",_fresh:true};
   }
+ ];
+
+ let tick=null;
+ // Start both together; first fresh response wins.
+ try{
+  tick=await Promise.any(sources.map(fn=>fn()));
+ }catch(e){
+  throw new Error("Live price unavailable");
  }
 
  const p=Number(tick.mid);
  if(!Number.isFinite(p)) throw new Error("No live price");
- localStorage.setItem("v631_last_price",String(p));
- localStorage.setItem("v631_last_tick",JSON.stringify(tick));
+ localStorage.setItem("v632_last_price",String(p));
+ localStorage.setItem("v632_last_tick",JSON.stringify(tick));
  return tick;
 }
 async function getCandles(tf){
@@ -279,7 +275,7 @@ async function getCandles(tf){
 }
 
 function cachedTick(){
- for(const key of ["v631_last_tick","v63_last_tick","v62_last_tick","v61_last_tick"]){
+ for(const key of ["v632_last_tick","v631_last_tick","v63_last_tick","v62_last_tick","v61_last_tick"]){
   try{
    const d=JSON.parse(localStorage.getItem(key)||"null");
    const p=Number(d&&d.mid);
@@ -290,7 +286,7 @@ function cachedTick(){
    }
   }catch(_){}
  }
- for(const key of ["v631_last_price","v63_last_price","v62_last_price","v61_last_price"]){
+ for(const key of ["v632_last_price","v631_last_price","v63_last_price","v62_last_price","v61_last_price"]){
   const p=Number(localStorage.getItem(key));
   if(Number.isFinite(p)) return {mid:p,marketState:"cached",source:"last valid price",_fresh:false,_feed:"CACHE"};
  }
@@ -618,113 +614,116 @@ async function scanReadySignal(){
 
 async function runAnalysis(){
  const st=document.getElementById("status");
- st.innerHTML="⏳ Scanning H1 & H4 candles...";
- let usingCachedPrice=false;
+ st.innerHTML="⏳ Connecting live price...";
  let tick=null,h1=null,h4=null;
+ let usingCachedPrice=false;
 
+ // STEP 1 — PRICE FIRST. Do not wait for candles before showing price.
  try{
-  try{
-   tick=await getPrice();
-  }catch(priceErr){
-   tick=cachedTick();
-   if(!tick) throw priceErr;
-   usingCachedPrice=true;
-  }
+  tick=await getPrice();
+ }catch(priceErr){
+  tick=cachedTick();
+  usingCachedPrice=true;
+ }
 
-  const candleResults=await Promise.allSettled([getCandles("1h"),getCandles("4h")]);
-  if(candleResults[0].status==="fulfilled") h1=candleResults[0].value;
-  if(candleResults[1].status==="fulfilled") h4=candleResults[1].value;
-
-  if(!h1){
-   const c=localStorage.getItem("v61_1h_bars");
-   if(c) try{h1=JSON.parse(c)}catch(_){}
-  }
-  if(!h4){
-   const c=localStorage.getItem("v61_4h_bars");
-   if(c) try{h4=JSON.parse(c)}catch(_){}
-  }
-  if(!Array.isArray(h1)||!h1.length||!Array.isArray(h4)||!h4.length){
-   throw new Error("Candle data unavailable");
-  }
-
+ if(tick && Number.isFinite(Number(tick.mid))){
   CURRENT=Number(tick.mid);
-  if(!Number.isFinite(CURRENT)) throw new Error("Price format error");
   LIVE_PRICE_OK=!usingCachedPrice && tick._fresh!==false;
   PRICE_SOURCE=tick._feed || tick.source || "market feed";
 
   document.getElementById("currentPrice").innerHTML=CURRENT.toLocaleString("en-US",{
    minimumFractionDigits:2,maximumFractionDigits:2
   });
-
   document.getElementById("marketState").innerHTML=
-   LIVE_PRICE_OK
-    ? "🟢 LIVE • "+PRICE_SOURCE
-    : "⚠️ STALE/CACHED • Alerts & TP tracker paused";
+   LIVE_PRICE_OK ? "🟢 LIVE • "+PRICE_SOURCE : "⚠️ STALE/CACHED • Alerts & TP tracker paused";
 
-  const b1=trendBias(h1),b4=trendBias(h4);
-  document.getElementById("h1Bias").innerHTML="H1: "+b1;
-  document.getElementById("h4Bias").innerHTML="H4: "+b4;
-
-  const a=atr(h1),hw=Math.max(1.25,Math.min(3,a*.09)),tol=Math.max(2,Math.min(5,a*.16)),gap=Math.max(2,Math.min(6,a*.12));
-  const p1=pivots(h1,1),p4=pivots(h4,2);
-  BUY=chooseBuy(cluster([...p1.lows,...p4.lows],tol),CURRENT,hw,gap);
-  SELL=chooseSell(cluster([...p1.highs,...p4.highs],tol),CURRENT,hw,gap);
-
-  if(BUY){
-   document.getElementById("buyZone").innerHTML=fmt(BUY.low)+" - "+fmt(BUY.high);
-   document.getElementById("buyStrength").innerHTML=strength(BUY);
-   document.getElementById("buyInfo").innerHTML=BUY.touches+" reaction • ~"+pips(CURRENT-BUY.high)+" pips away";
-  }else{
-   document.getElementById("buyZone").innerHTML="No clean zone";
-   document.getElementById("buyStrength").innerHTML="—";
-   document.getElementById("buyInfo").innerHTML="Tiada support bersih.";
-   document.getElementById("buyValidity").innerHTML="Status: —";
-  }
-
-  if(SELL){
-   document.getElementById("sellZone").innerHTML=fmt(SELL.low)+" - "+fmt(SELL.high);
-   document.getElementById("sellStrength").innerHTML=strength(SELL);
-   document.getElementById("sellInfo").innerHTML=SELL.touches+" reaction • ~"+pips(SELL.low-CURRENT)+" pips away";
-  }else{
-   document.getElementById("sellZone").innerHTML="No clean zone";
-   document.getElementById("sellStrength").innerHTML="—";
-   document.getElementById("sellInfo").innerHTML="Tiada resistance bersih.";
-   document.getElementById("sellValidity").innerHTML="Status: —";
-  }
-
-  buildTargets();
-  updateValidity();
-  updateLiveDistance();
-  checkAlerts();
-  updateTracker();
-  setTimeout(()=>scanReadySignal().catch(e=>{
-   console.warn("Ready signal scan:",e);
-   const s=document.getElementById("readySummary");
-   if(s) s.textContent="🟡 READY SIGNAL: data M5/M15 sedang reconnect; Auto Zone H1 kekal aktif.";
-  }),50);
-
-  if(!LIVE_PRICE_OK){
-   st.innerHTML="⚠️ Live price belum fresh. Harga terakhir dipaparkan tetapi ALERT & TP TRACKER dihentikan sementara.";
-  }else if(BUY&&SELL){
-   const closer=(CURRENT-BUY.high<SELL.low-CURRENT)?"BUY":"SELL";
-   st.innerHTML="✅ V6.3 LIVE • "+closer+" zone lebih dekat • Early alert "+alertPips+" pips • TP tracker aktif.";
-  }else{
-   st.innerHTML="✅ V6.3 LIVE • Menunggu clean H1/H4 zone.";
-  }
-
- }catch(e){
-  console.error(e);
+  st.innerHTML=LIVE_PRICE_OK
+   ? "✅ Live price connected • Scanning H1/H4 zone..."
+   : "⚠️ Live price reconnecting • showing last valid price sementara...";
+ }else{
   LIVE_PRICE_OK=false;
-  const fallback=cachedTick();
-  if(fallback&&Number.isFinite(Number(fallback.mid))){
-   CURRENT=Number(fallback.mid);
-   document.getElementById("currentPrice").innerHTML=CURRENT.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
-   document.getElementById("marketState").innerHTML="⚠️ STALE/CACHED • Alerts & TP tracker paused";
-   st.innerHTML="⚠️ Smart dual-feed reconnecting. Harga terakhir dikekalkan; alert dan TP tracker dipause sehingga live feed kembali.";
-  }else{
-   document.getElementById("currentPrice").innerHTML="RECONNECTING";
-   st.innerHTML="⚠️ Live feed belum dapat disambungkan. V6.3 akan cuba semula automatik.";
-  }
+  document.getElementById("currentPrice").innerHTML="RECONNECTING";
+  document.getElementById("marketState").innerHTML="⚠️ Connecting live feed...";
+  st.innerHTML="⚠️ Live price belum dapat. App akan cuba lagi secara automatik.";
+ }
+
+ // STEP 2 — CANDLES. These are separate from live-price display.
+ const candleResults=await Promise.allSettled([
+  Promise.race([getCandles("1h"),new Promise((_,rej)=>setTimeout(()=>rej(new Error("H1 timeout")),8000))]),
+  Promise.race([getCandles("4h"),new Promise((_,rej)=>setTimeout(()=>rej(new Error("H4 timeout")),8000))])
+ ]);
+
+ if(candleResults[0].status==="fulfilled") h1=candleResults[0].value;
+ if(candleResults[1].status==="fulfilled") h4=candleResults[1].value;
+
+ if(!h1){
+  const c=localStorage.getItem("v61_1h_bars");
+  if(c) try{h1=JSON.parse(c)}catch(_){}
+ }
+ if(!h4){
+  const c=localStorage.getItem("v61_4h_bars");
+  if(c) try{h4=JSON.parse(c)}catch(_){}
+ }
+
+ // Price may be live even if candle API is temporarily unavailable.
+ if(!Array.isArray(h1)||!h1.length||!Array.isArray(h4)||!h4.length){
+  st.innerHTML=LIVE_PRICE_OK
+   ? "🟢 Harga LIVE • H1/H4 candle sedang reconnect. Zone lama dikekalkan."
+   : "⚠️ Live price & candle sedang reconnect.";
+  setTimeout(()=>scanReadySignal().catch(()=>{}),50);
+  return;
+ }
+
+ const b1=trendBias(h1),b4=trendBias(h4);
+ document.getElementById("h1Bias").innerHTML="H1: "+b1;
+ document.getElementById("h4Bias").innerHTML="H4: "+b4;
+
+ const a=atr(h1),hw=Math.max(1.25,Math.min(3,a*.09)),tol=Math.max(2,Math.min(5,a*.16)),gap=Math.max(2,Math.min(6,a*.12));
+ const p1=pivots(h1,1),p4=pivots(h4,2);
+ BUY=chooseBuy(cluster([...p1.lows,...p4.lows],tol),CURRENT,hw,gap);
+ SELL=chooseSell(cluster([...p1.highs,...p4.highs],tol),CURRENT,hw,gap);
+
+ if(BUY){
+  document.getElementById("buyZone").innerHTML=fmt(BUY.low)+" - "+fmt(BUY.high);
+  document.getElementById("buyStrength").innerHTML=strength(BUY);
+  document.getElementById("buyInfo").innerHTML=BUY.touches+" reaction • ~"+pips(CURRENT-BUY.high)+" pips away";
+ }else{
+  document.getElementById("buyZone").innerHTML="No clean zone";
+  document.getElementById("buyStrength").innerHTML="—";
+  document.getElementById("buyInfo").innerHTML="Tiada support bersih.";
+  document.getElementById("buyValidity").innerHTML="Status: —";
+ }
+
+ if(SELL){
+  document.getElementById("sellZone").innerHTML=fmt(SELL.low)+" - "+fmt(SELL.high);
+  document.getElementById("sellStrength").innerHTML=strength(SELL);
+  document.getElementById("sellInfo").innerHTML=SELL.touches+" reaction • ~"+pips(SELL.low-CURRENT)+" pips away";
+ }else{
+  document.getElementById("sellZone").innerHTML="No clean zone";
+  document.getElementById("sellStrength").innerHTML="—";
+  document.getElementById("sellInfo").innerHTML="Tiada resistance bersih.";
+  document.getElementById("sellValidity").innerHTML="Status: —";
+ }
+
+ buildTargets();
+ updateValidity();
+ updateLiveDistance();
+ checkAlerts();
+ updateTracker();
+
+ setTimeout(()=>scanReadySignal().catch(e=>{
+  console.warn("Ready signal scan:",e);
+  const s=document.getElementById("readySummary");
+  if(s) s.textContent="🟡 READY SIGNAL: data M5/M15 sedang reconnect; Auto Zone H1 kekal aktif.";
+ }),50);
+
+ if(!LIVE_PRICE_OK){
+  st.innerHTML="⚠️ Harga cache digunakan • ALERT & TP TRACKER dipause sehingga live kembali.";
+ }else if(BUY&&SELL){
+  const closer=(CURRENT-BUY.high<SELL.low-CURRENT)?"BUY":"SELL";
+  st.innerHTML="✅ V6.3.2 LIVE • "+closer+" zone lebih dekat • M5/M15 ready scan aktif.";
+ }else{
+  st.innerHTML="✅ V6.3.2 LIVE • Menunggu clean H1/H4 zone.";
  }
 }
 document.getElementById("alertBtn").innerHTML=alertsEnabled?"🔔 ALERT ON":"🔕 ALERT OFF";
