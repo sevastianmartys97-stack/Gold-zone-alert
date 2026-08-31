@@ -1,4 +1,4 @@
-const CACHE = 'gold-zone-pwa-v632-fast-price';
+const CACHE = 'gold-zone-pwa-v633-alert-status-fix';
 const APP_SHELL = [
   './',
   './index.html',
