@@ -102,7 +102,7 @@ footer{padding:15px;text-align:center;font-size:10px;color:#687482}
 
 <div class="app">
 <header>
- <div><h1>🥇 GOLD AUTO ZONE V6.3.4 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
+ <div><h1>🥇 GOLD AUTO ZONE V6.3.5 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
  <div class="live">● AUTO</div>
 </header>
 
@@ -923,15 +923,37 @@ async function runAnalysis(){
   st.innerHTML="⚠️ Harga cache digunakan • ALERT & TP TRACKER dipause sehingga live kembali.";
  }else if(BUY&&SELL){
   const closer=(CURRENT-BUY.high<SELL.low-CURRENT)?"BUY":"SELL";
-  st.innerHTML="✅ V6.3.4 LIVE • "+closer+" zone lebih dekat • M5/M15 ready scan aktif.";
+  st.innerHTML="✅ V6.3.5 LIVE • "+closer+" zone lebih dekat • M5/M15 ready scan aktif.";
  }else{
-  st.innerHTML="✅ V6.3.4 LIVE • Menunggu clean H1/H4 zone.";
+  st.innerHTML="✅ V6.3.5 LIVE • Menunggu clean H1/H4 zone.";
  }
  analysisBusy=false;
 }
+// V6.3.5: lightweight live-price refresh only. Zone/candle engine remains on 45s cycle.
+let fastPriceBusy=false;
+async function fastPriceRefresh(){
+ if(fastPriceBusy)return;
+ fastPriceBusy=true;
+ try{
+  const tick=await getPrice();
+  if(tick && Number.isFinite(Number(tick.mid))){
+   CURRENT=Number(tick.mid);
+   LIVE_PRICE_OK=tick._fresh!==false;
+   PRICE_SOURCE=tick._feed || tick.source || "market feed";
+   document.getElementById("currentPrice").innerHTML=CURRENT.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+   document.getElementById("marketState").innerHTML="🟢 LIVE • "+PRICE_SOURCE+" • AUTO 5s";
+   // Update only lightweight displays against the latest price.
+   try{ updateValidity(); updateLiveDistance(); checkAlerts(); updateTracker(); }catch(_){ }
+  }
+ }catch(e){
+  console.warn("Fast price refresh:",e);
+ }finally{ fastPriceBusy=false; }
+}
+
 document.getElementById("alertBtn").innerHTML=alertsEnabled?"🔔 ALERT ON":"🔕 ALERT OFF";
 runAnalysis();
 setInterval(runAnalysis,45000);
+setInterval(fastPriceRefresh,5000);
 </script>
 
 <script>
