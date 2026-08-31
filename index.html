@@ -102,7 +102,7 @@ footer{padding:15px;text-align:center;font-size:10px;color:#687482}
 
 <div class="app">
 <header>
- <div><h1>🥇 GOLD AUTO ZONE V6.4.0 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
+ <div><h1>🥇 GOLD AUTO ZONE V6.4.1 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
  <div class="live">● AUTO</div>
 </header>
 
@@ -143,7 +143,7 @@ style="width:100%;height:100%;border:0" scrolling="no"></iframe>
 
 
 <div class="signalpanel">
- <div class="title">⚡ M5 / M15 READY SIGNAL</div>
+ <div class="title">⚡ MAIN M5 / M15 READY SIGNAL</div>
  <div class="detail" style="margin-top:5px">Signal hanya dinilai apabila harga berada DALAM Auto BUY/SELL Zone H1.</div>
  <div class="signalgrid">
   <div class="signalbox" id="m5Box">
@@ -155,7 +155,7 @@ style="width:100%;height:100%;border:0" scrolling="no"></iframe>
    <div class="sigline" id="m15Detail">Menunggu harga masuk zone...</div>
   </div>
  </div>
- <div class="signalnote" id="readySummary">🟡 READY SIGNAL: Menunggu harga masuk zone entry.</div>
+ <div class="signalnote" id="readySummary">🟡 MAIN: H4 bias → H1 zone → M15 + M5 confirmation.</div>
 </div>
 
 <div class="intraday" id="intradayCard">
@@ -220,7 +220,7 @@ style="width:100%;height:100%;border:0" scrolling="no"></iframe>
 </div>
 
 <footer>
-V6.4.0 PWA • XAUS Hybrid • LIVE PRICE AUTO 2s • Intraday H1/M15/M5 • TP1 100 / TP2 150 / TP3 200 pips.<br>
+V6.4.1 PWA • Logic Fix • MAIN: H4 bias → H1 zone → M15+M5 • INTRADAY: H1 bias → M15 zone → M5.<br>TP/SL tracker hanya aktif selepas READY confirmation.<br>
 TP/SL ialah cadangan teknikal daripada struktur zone, bukan jaminan hasil.
 </footer>
 </div>
@@ -235,6 +235,8 @@ let LIVE_PRICE_OK=false;
 let PRICE_SOURCE="";
 let lastReadySignal="";
 let analysisBusy=false;
+let GLOBAL_H1_BIAS="NEUTRAL", GLOBAL_H4_BIAS="NEUTRAL";
+let activeTrade=JSON.parse(localStorage.getItem("v641_active_trade")||"null");
 let tracker=JSON.parse(localStorage.getItem("v6tracker")||'{"buy":{},"sell":{}}');
 
 document.getElementById("alertDistance").value=String(alertPips);
@@ -525,40 +527,46 @@ function updateLiveDistance(){
  document.getElementById("liveDistance").innerHTML=txt;
 }
 
+function activateTrade(type,side,levels,key){
+ if(!levels || !side || !key) return;
+ if(activeTrade && activeTrade.key===key) return;
+ activeTrade={type,side,key,entry:levels.entry,sl:levels.sl,tp1:levels.tp1,tp2:levels.tp2,tp3:levels.tp3,status:"ACTIVE"};
+ localStorage.setItem("v641_active_trade",JSON.stringify(activeTrade));
+ const bucket=side.toLowerCase();
+ tracker[bucket][key]=tracker[bucket][key]||{tp1:false,tp2:false,tp3:false,sl:false,be:false};
+ localStorage.setItem("v6tracker",JSON.stringify(tracker));
+ showToast("🎯 TRACKER ACTIVE",type+" "+side+" confirmed • TP/SL tracker sekarang aktif.");
+}
+
 function updateTracker(){
+ const buyEl=document.getElementById("buyTracker"), sellEl=document.getElementById("sellTracker");
  if(!LIVE_PRICE_OK){
-  document.getElementById("buyTracker").innerHTML="⏸️ Paused — waiting live price";
-  document.getElementById("sellTracker").innerHTML="⏸️ Paused — waiting live price";
+  buyEl.innerHTML="⏸️ Paused — waiting live price";
+  sellEl.innerHTML="⏸️ Paused — waiting live price";
   return;
  }
- if(BUY){
-  const k=zoneKey(BUY);
-  tracker.buy[k]=tracker.buy[k]||{tp1:false,tp2:false,tp3:false,be:false};
-  const t=tracker.buy[k];
-
-  if(CURRENT>=BUY.tp1&&!t.tp1){t.tp1=true;fireAlert("✅ BUY TP1 HIT","XAUUSD hit BUY TP1 "+fmt(BUY.tp1)+". Consider protect / break-even.","btp1-"+k)}
-  if(CURRENT>=BUY.tp2&&!t.tp2){t.tp2=true;fireAlert("✅ BUY TP2 HIT","XAUUSD hit BUY TP2 "+fmt(BUY.tp2)+".","btp2-"+k)}
-  if(CURRENT>=BUY.tp3&&!t.tp3){t.tp3=true;fireAlert("✅ BUY TP3 HIT","XAUUSD hit BUY TP3 "+fmt(BUY.tp3)+".","btp3-"+k)}
-  if(t.tp1&&!t.be){t.be=true;fireAlert("🛡️ BUY BREAK-EVEN","TP1 sudah hit. Pertimbang protect position / BE.","bbe-"+k)}
-
-  document.getElementById("buyTracker").innerHTML=
-   "TP1 "+(t.tp1?"✅":"⬜")+" • TP2 "+(t.tp2?"✅":"⬜")+" • TP3 "+(t.tp3?"✅":"⬜");
+ if(!activeTrade || activeTrade.status!=="ACTIVE"){
+  buyEl.innerHTML="🔒 LOCKED — tunggu READY BUY";
+  sellEl.innerHTML="🔒 LOCKED — tunggu READY SELL";
+  return;
  }
-
- if(SELL){
-  const k=zoneKey(SELL);
-  tracker.sell[k]=tracker.sell[k]||{tp1:false,tp2:false,tp3:false,be:false};
-  const t=tracker.sell[k];
-
-  if(CURRENT<=SELL.tp1&&!t.tp1){t.tp1=true;fireAlert("✅ SELL TP1 HIT","XAUUSD hit SELL TP1 "+fmt(SELL.tp1)+". Consider protect / break-even.","stp1-"+k)}
-  if(CURRENT<=SELL.tp2&&!t.tp2){t.tp2=true;fireAlert("✅ SELL TP2 HIT","XAUUSD hit SELL TP2 "+fmt(SELL.tp2)+".","stp2-"+k)}
-  if(CURRENT<=SELL.tp3&&!t.tp3){t.tp3=true;fireAlert("✅ SELL TP3 HIT","XAUUSD hit SELL TP3 "+fmt(SELL.tp3)+".","stp3-"+k)}
-  if(t.tp1&&!t.be){t.be=true;fireAlert("🛡️ SELL BREAK-EVEN","TP1 sudah hit. Pertimbang protect position / BE.","sbe-"+k)}
-
-  document.getElementById("sellTracker").innerHTML=
-   "TP1 "+(t.tp1?"✅":"⬜")+" • TP2 "+(t.tp2?"✅":"⬜")+" • TP3 "+(t.tp3?"✅":"⬜");
- }
+ const side=activeTrade.side, bucket=side.toLowerCase(), k=activeTrade.key;
+ tracker[bucket][k]=tracker[bucket][k]||{tp1:false,tp2:false,tp3:false,sl:false,be:false};
+ const t=tracker[bucket][k], x=activeTrade;
+ const hitSL=side==="BUY" ? CURRENT<=x.sl : CURRENT>=x.sl;
+ const hit1=side==="BUY" ? CURRENT>=x.tp1 : CURRENT<=x.tp1;
+ const hit2=side==="BUY" ? CURRENT>=x.tp2 : CURRENT<=x.tp2;
+ const hit3=side==="BUY" ? CURRENT>=x.tp3 : CURRENT<=x.tp3;
+ if(hitSL&&!t.sl){t.sl=true;fireAlert("🛑 "+side+" SL HIT",x.type+" "+side+" hit SL "+fmt(x.sl)+".","sl-"+k)}
+ if(!t.sl && hit1&&!t.tp1){t.tp1=true;fireAlert("✅ "+side+" TP1 HIT",x.type+" "+side+" hit TP1 "+fmt(x.tp1)+". Consider protect / break-even.","tp1-"+k)}
+ if(!t.sl && hit2&&!t.tp2){t.tp2=true;fireAlert("✅ "+side+" TP2 HIT",x.type+" "+side+" hit TP2 "+fmt(x.tp2)+".","tp2-"+k)}
+ if(!t.sl && hit3&&!t.tp3){t.tp3=true;fireAlert("✅ "+side+" TP3 HIT",x.type+" "+side+" hit TP3 "+fmt(x.tp3)+".","tp3-"+k)}
+ if(t.tp1&&!t.be){t.be=true;fireAlert("🛡️ "+side+" BREAK-EVEN","TP1 sudah hit. Pertimbang protect position / BE.","be-"+k)}
+ const html="🎯 "+x.type+" ACTIVE • TP1 "+(t.tp1?"✅":"⬜")+" • TP2 "+(t.tp2?"✅":"⬜")+" • TP3 "+(t.tp3?"✅":"⬜")+" • SL "+(t.sl?"🛑":"⬜");
+ if(side==="BUY") {buyEl.innerHTML=html; sellEl.innerHTML="🔒 LOCKED — BUY trade active";}
+ else {sellEl.innerHTML=html; buyEl.innerHTML="🔒 LOCKED — SELL trade active";}
  localStorage.setItem("v6tracker",JSON.stringify(tracker));
+ localStorage.setItem("v641_active_trade",JSON.stringify(activeTrade));
 }
 
 function checkAlerts(){
@@ -622,6 +630,8 @@ function saveAlertDistance(){
 
 function resetTracker(){
  tracker={buy:{},sell:{}};
+ activeTrade=null;
+ localStorage.removeItem("v641_active_trade");
  localStorage.setItem("v6tracker",JSON.stringify(tracker));
  document.getElementById("buyTracker").innerHTML="TP tracker: reset";
  document.getElementById("sellTracker").innerHTML="TP tracker: reset";
@@ -708,38 +718,36 @@ async function scanReadySignal(){
  const summary=document.getElementById("readySummary");
  if(!LIVE_PRICE_OK || !Number.isFinite(CURRENT)){
   paintSignal("m5",null,null); paintSignal("m15",null,null);
-  summary.textContent="⏸️ READY SIGNAL dipause — menunggu live price.";
+  summary.textContent="⏸️ MAIN READY dipause — menunggu live price.";
   return;
  }
-
- const side=inZone(BUY,CURRENT)?"BUY":inZone(SELL,CURRENT)?"SELL":null;
+ // MAIN/SWING logic: H4 chooses direction, H1 zone is entry area, M15+M5 confirm.
+ let side=null, zone=null;
+ if(GLOBAL_H4_BIAS==="BULLISH" && inZone(BUY,CURRENT)){ side="BUY"; zone=BUY; }
+ else if(GLOBAL_H4_BIAS==="BEARISH" && inZone(SELL,CURRENT)){ side="SELL"; zone=SELL; }
  if(!side){
   paintSignal("m5",null,null); paintSignal("m15",null,null);
-  summary.textContent="🟡 READY SIGNAL: Menunggu harga masuk Auto BUY/SELL Zone H1.";
-  lastReadySignal="";
+  summary.textContent="🟡 MAIN: H4 "+GLOBAL_H4_BIAS+" • tunggu harga masuk H1 zone yang sehala.";
   return;
  }
-
- summary.textContent="🔎 Harga dalam "+side+" ZONE • scanning M5 & M15 confirmation...";
+ summary.textContent="🔎 MAIN "+side+": H4 sehala + harga dalam H1 zone • scanning M5 & M15...";
  const rs=await Promise.allSettled([getSignalCandles("5m"),getSignalCandles("15m")]);
  const r5=rs[0].status==="fulfilled"?candleConfirm(rs[0].value,side):null;
  const r15=rs[1].status==="fulfilled"?candleConfirm(rs[1].value,side):null;
- paintSignal("m5",side,r5);
- paintSignal("m15",side,r15);
-
+ paintSignal("m5",side,r5); paintSignal("m15",side,r15);
  const ready5=!!(r5&&r5.ok), ready15=!!(r15&&r15.ok);
- // Stronger READY requires BOTH timeframes. One timeframe only = early watch.
  if(ready5 && ready15){
-  summary.textContent="✅ READY "+side+" • M5 + M15 confirmed dalam H1 zone.";
-  const key=side+"_"+(BUY&&side==="BUY"?fmt(BUY.low):SELL&&fmt(SELL.low));
+  summary.textContent="✅ MAIN READY "+side+" • H4 + H1 zone + M15 + M5 confirmed.";
+  const key="MAIN_"+side+"_"+fmt(zone.low)+"_"+fmt(zone.high);
+  activateTrade("MAIN",side,zone,key);
   if(lastReadySignal!==key){
    lastReadySignal=key;
-   if(alertsEnabled) fireAlert("GOLD READY "+side,"M5 + M15 confirmed ketika harga dalam "+side+" zone H1.");
+   if(alertsEnabled) fireAlert("GOLD MAIN READY "+side,"H4 bias + H1 zone + M15 + M5 confirmation lengkap.","ready-"+key);
   }
  }else if(ready5 || ready15){
-  summary.textContent="🟠 EARLY "+side+" • satu timeframe confirm, tunggu M5 + M15 sehala.";
+  summary.textContent="🟠 MAIN EARLY "+side+" • satu timeframe confirm, tracker masih LOCKED.";
  }else{
-  summary.textContent="🟡 WAIT "+side+" • harga sudah dalam zone tetapi confirmation M5/M15 belum cukup.";
+  summary.textContent="🟡 MAIN WAIT "+side+" • dalam H1 zone tetapi M5/M15 belum cukup confirmation.";
  }
 }
 
@@ -833,7 +841,8 @@ async function scanIntraday(h1Bars){
    document.getElementById("intraSignalDetail").textContent="H1 + M15 + M5 CONFIRMED";
    const grade=conf.score>=3?"A SETUP":"B SETUP";
    document.getElementById("intraQuality").textContent="🛡️ ENTRY QUALITY: "+grade+" • Intraday "+side+" confirmed. TP ialah panduan teknikal.";
-   const key="INTRA_"+side+"_"+fmt(zone.low);
+   const key="INTRA_"+side+"_"+fmt(zone.low)+"_"+fmt(zone.high);
+   activateTrade("INTRADAY",side,{entry,sl,tp1,tp2,tp3},key);
    if(alertsEnabled && lastReadySignal!==key){
     lastReadySignal=key;
     fireAlert("GOLD INTRADAY READY "+side,"H1 trend + M15 zone + M5 confirmation lengkap.");
@@ -921,6 +930,7 @@ async function runAnalysis(){
  }
 
  const b1=trendBias(h1),b4=trendBias(h4);
+ GLOBAL_H1_BIAS=b1; GLOBAL_H4_BIAS=b4;
  document.getElementById("h1Bias").innerHTML="H1: "+b1;
  document.getElementById("h4Bias").innerHTML="H4: "+b4;
 
@@ -970,9 +980,9 @@ async function runAnalysis(){
   st.innerHTML="⚠️ Harga cache digunakan • ALERT & TP TRACKER dipause sehingga live kembali.";
  }else if(BUY&&SELL){
   const closer=(CURRENT-BUY.high<SELL.low-CURRENT)?"BUY":"SELL";
-  st.innerHTML="✅ V6.4.0 LIVE • "+closer+" zone lebih dekat • M5/M15 ready scan aktif.";
+  st.innerHTML="✅ V6.4.1 LIVE • "+closer+" zone lebih dekat • M5/M15 ready scan aktif.";
  }else{
-  st.innerHTML="✅ V6.4.0 LIVE • Menunggu clean H1/H4 zone.";
+  st.innerHTML="✅ V6.4.1 LIVE • Menunggu clean H1/H4 zone.";
  }
  analysisBusy=false;
 }
