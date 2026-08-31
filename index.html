@@ -2,164 +2,145 @@
 <html lang="ms">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Gold Zone Alert</title>
+<title>Gold Auto Zone</title>
 
 <style>
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
-  margin:0;
-  background:#0b0f14;
-  color:#ffffff;
-  font-family:Arial,sans-serif;
+margin:0;
+background:#0a0f14;
+color:#fff;
+font-family:Arial,sans-serif;
 }
 
 .app{
-  max-width:480px;
-  margin:auto;
-  min-height:100vh;
-  background:#111720;
+max-width:520px;
+margin:auto;
+background:#111821;
+min-height:100vh;
 }
 
 header{
-  padding:18px;
-  border-bottom:1px solid #29323d;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+padding:18px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+border-bottom:1px solid #26313c;
 }
 
 h1{
-  margin:0;
-  font-size:20px;
+font-size:20px;
+margin:0;
 }
 
 .sub{
-  color:#8995a5;
-  font-size:12px;
-  margin-top:5px;
+font-size:11px;
+color:#8895a4;
+margin-top:5px;
 }
 
 .live{
-  background:#173b2a;
-  color:#64e29a;
-  padding:8px 10px;
-  border-radius:20px;
-  font-size:11px;
+padding:8px 10px;
+border-radius:20px;
+background:#173d2a;
+color:#66e49c;
+font-size:11px;
+}
+
+.pricebox{
+padding:18px;
+}
+
+.price{
+font-size:34px;
+font-weight:bold;
+}
+
+.market{
+font-size:11px;
+color:#8c98a7;
+margin-top:5px;
 }
 
 .card{
-  margin:14px;
-  background:#171e27;
-  border:1px solid #293440;
-  border-radius:14px;
-  overflow:hidden;
+margin:0 14px 14px;
+background:#171f28;
+border:1px solid #2a3642;
+border-radius:14px;
+overflow:hidden;
 }
 
-.tv-wrap{
-  height:420px;
+.chart{
+height:400px;
 }
 
-.section{
-  padding:0 14px;
+.zones{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+padding:0 14px;
 }
 
-.zone-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-}
-
-.zone-card{
-  background:#171e27;
-  padding:14px;
-  border-radius:13px;
-  border:1px solid #293440;
+.zone{
+padding:14px;
+border-radius:13px;
+background:#171f28;
 }
 
 .buy{
-  border-color:#2d7b57;
+border:1px solid #287b55;
 }
 
 .sell{
-  border-color:#7f4148;
+border:1px solid #8a444a;
 }
 
-.zone-title{
-  font-weight:bold;
-  font-size:13px;
-  margin-bottom:8px;
+.title{
+font-size:12px;
+font-weight:bold;
 }
 
-.zone-price{
-  font-size:18px;
-  font-weight:bold;
+.zoneprice{
+font-size:20px;
+font-weight:bold;
+margin-top:8px;
 }
 
-.small{
-  color:#8995a5;
-  font-size:11px;
-  margin-top:7px;
-}
-
-.control{
-  margin:14px;
-  padding:14px;
-  background:#171e27;
-  border:1px solid #293440;
-  border-radius:14px;
-}
-
-label{
-  display:block;
-  font-size:11px;
-  color:#8995a5;
-  margin-bottom:5px;
-}
-
-input{
-  width:100%;
-  padding:11px;
-  margin-bottom:10px;
-  background:#0f151d;
-  color:#fff;
-  border:1px solid #34404d;
-  border-radius:9px;
-  font-size:15px;
-}
-
-button{
-  width:100%;
-  padding:13px;
-  border:0;
-  border-radius:10px;
-  background:#286247;
-  color:#fff;
-  font-weight:bold;
-  font-size:14px;
+.detail{
+font-size:11px;
+color:#8d99a8;
+margin-top:8px;
+line-height:1.5;
 }
 
 .status{
-  margin:14px;
-  padding:14px;
-  border-radius:13px;
-  background:#193027;
-  border:1px solid #317957;
+margin:14px;
+padding:14px;
+border-radius:13px;
+background:#173225;
+border:1px solid #347b58;
+font-size:12px;
 }
 
-.status b{
-  color:#65e7a0;
+.refresh{
+margin:0 14px 18px;
+width:calc(100% - 28px);
+padding:13px;
+border:0;
+border-radius:11px;
+background:#28684a;
+color:#fff;
+font-weight:bold;
 }
 
 footer{
-  text-align:center;
-  color:#657181;
-  font-size:10px;
-  padding:16px;
+padding:15px;
+text-align:center;
+font-size:10px;
+color:#687482;
 }
 </style>
 </head>
@@ -169,87 +150,98 @@ footer{
 <div class="app">
 
 <header>
-  <div>
-    <h1>🥇 GOLD ZONE ALERT</h1>
-    <div class="sub">XAUUSD • M15 / H1 / H4</div>
-  </div>
 
-  <div class="live">
-    ● LIVE CHART
-  </div>
+<div>
+<h1>🥇 GOLD AUTO ZONE</h1>
+<div class="sub">XAUUSD • H1 + H4 Auto Analysis</div>
+</div>
+
+<div class="live">● AUTO</div>
+
 </header>
 
 
+<div class="pricebox">
+
+<div class="sub">CURRENT XAUUSD</div>
+
+<div class="price" id="currentPrice">
+Loading...
+</div>
+
+<div class="market" id="marketState">
+Reading market...
+</div>
+
+</div>
+
+
 <div class="card">
-  <div class="tv-wrap">
 
-    <iframe
-      src="https://s.tradingview.com/widgetembed/?symbol=OANDA%3AXAUUSD&interval=15&theme=dark&style=1&timezone=Asia%2FKuala_Lumpur&withdateranges=1&hideideas=1"
-      style="width:100%;height:100%;border:0;"
-      allowtransparency="true"
-      scrolling="no">
-    </iframe>
+<div class="chart">
 
-  </div>
+<iframe
+src="https://s.tradingview.com/widgetembed/?symbol=OANDA%3AXAUUSD&interval=60&theme=dark&style=1&timezone=Asia%2FKuala_Lumpur&withdateranges=1&hideideas=1"
+style="width:100%;height:100%;border:0;"
+scrolling="no">
+</iframe>
+
 </div>
-
-
-<div class="section">
-
-  <div class="zone-grid">
-
-    <div class="zone-card buy">
-      <div class="zone-title">🟢 BUY ZONE</div>
-      <div class="zone-price" id="buyText">4610 - 4615</div>
-      <div class="small">Tunggu rejection / confirmation</div>
-    </div>
-
-    <div class="zone-card sell">
-      <div class="zone-title">🔴 SELL ZONE</div>
-      <div class="zone-price" id="sellText">4665 - 4680</div>
-      <div class="small">Tunggu rejection / confirmation</div>
-    </div>
-
-  </div>
 
 </div>
 
 
-<div class="control">
+<div class="zones">
 
-  <label>BUY ZONE LOW</label>
-  <input id="buyLow" type="number" value="4610">
+<div class="zone buy">
 
-  <label>BUY ZONE HIGH</label>
-  <input id="buyHigh" type="number" value="4615">
+<div class="title">
+🟢 AUTO BUY ZONE
+</div>
 
-  <label>SELL ZONE LOW</label>
-  <input id="sellLow" type="number" value="4665">
+<div class="zoneprice" id="buyZone">
+Scanning...
+</div>
 
-  <label>SELL ZONE HIGH</label>
-  <input id="sellHigh" type="number" value="4680">
-
-  <button onclick="saveZones()">
-    💾 SAVE ZONES
-  </button>
+<div class="detail" id="buyInfo">
+Analysing H1/H4 swing lows
+</div>
 
 </div>
 
 
-<div class="status">
+<div class="zone sell">
 
-  <b>✓ MARKET STATUS</b>
+<div class="title">
+🔴 AUTO SELL ZONE
+</div>
 
-  <div id="statusText" style="margin-top:7px;color:#c3ccd6;">
-    Zone boleh diubah sendiri. Pantau harga melalui chart live di atas.
-  </div>
+<div class="zoneprice" id="sellZone">
+Scanning...
+</div>
+
+<div class="detail" id="sellInfo">
+Analysing H1/H4 swing highs
+</div>
 
 </div>
+
+</div>
+
+
+<div class="status" id="status">
+⏳ Scanning XAUUSD candles...
+</div>
+
+
+<button class="refresh" onclick="runAnalysis()">
+🔄 REFRESH AUTO ZONE
+</button>
 
 
 <footer>
-Gold Zone Alert • Prototype V2<br>
-Chart live TradingView • Zone manual
+Auto Zone Prototype V3<br>
+Zone ialah analisis teknikal automatik, bukan signal pasti.
 </footer>
 
 </div>
@@ -257,85 +249,335 @@ Chart live TradingView • Zone manual
 
 <script>
 
-function saveZones(){
+const API =
+"https://biquote.io/api";
 
-  const buyLow =
-    document.getElementById("buyLow").value;
 
-  const buyHigh =
-    document.getElementById("buyHigh").value;
+async function getPrice(){
 
-  const sellLow =
-    document.getElementById("sellLow").value;
+const r =
+await fetch(API + "/XAUUSD");
 
-  const sellHigh =
-    document.getElementById("sellHigh").value;
+if(!r.ok){
+throw new Error("Price API error");
+}
 
-  document.getElementById("buyText").innerHTML =
-    buyLow + " - " + buyHigh;
-
-  document.getElementById("sellText").innerHTML =
-    sellLow + " - " + sellHigh;
-
-  localStorage.setItem("buyLow", buyLow);
-  localStorage.setItem("buyHigh", buyHigh);
-  localStorage.setItem("sellLow", sellLow);
-  localStorage.setItem("sellHigh", sellHigh);
-
-  document.getElementById("statusText").innerHTML =
-    "✅ Zone baru sudah disimpan.";
+return await r.json();
 
 }
 
 
-window.onload = function(){
+async function getCandles(interval){
 
-  const buyLow =
-    localStorage.getItem("buyLow");
+const r =
+await fetch(
+API +
+"/XAUUSD/ohlc?interval=" +
+interval +
+"&limit=200"
+);
 
-  const buyHigh =
-    localStorage.getItem("buyHigh");
+if(!r.ok){
+throw new Error("Candle API error");
+}
 
-  const sellLow =
-    localStorage.getItem("sellLow");
+const data =
+await r.json();
 
-  const sellHigh =
-    localStorage.getItem("sellHigh");
-
-
-  if(buyLow){
-    document.getElementById("buyLow").value = buyLow;
-  }
-
-  if(buyHigh){
-    document.getElementById("buyHigh").value = buyHigh;
-  }
-
-  if(sellLow){
-    document.getElementById("sellLow").value = sellLow;
-  }
-
-  if(sellHigh){
-    document.getElementById("sellHigh").value = sellHigh;
-  }
-
-
-  if(buyLow && buyHigh){
-
-    document.getElementById("buyText").innerHTML =
-      buyLow + " - " + buyHigh;
-
-  }
-
-
-  if(sellLow && sellHigh){
-
-    document.getElementById("sellText").innerHTML =
-      sellLow + " - " + sellHigh;
-
-  }
+return data.bars
+.filter(x => !x.isOpen)
+.reverse();
 
 }
+
+
+function findSwingLows(bars){
+
+let swings=[];
+
+for(let i=2;i<bars.length-2;i++){
+
+if(
+bars[i].low < bars[i-1].low &&
+bars[i].low < bars[i-2].low &&
+bars[i].low < bars[i+1].low &&
+bars[i].low < bars[i+2].low
+){
+
+swings.push({
+price:bars[i].low,
+time:bars[i].openTime
+});
+
+}
+
+}
+
+return swings;
+
+}
+
+
+function findSwingHighs(bars){
+
+let swings=[];
+
+for(let i=2;i<bars.length-2;i++){
+
+if(
+bars[i].high > bars[i-1].high &&
+bars[i].high > bars[i-2].high &&
+bars[i].high > bars[i+1].high &&
+bars[i].high > bars[i+2].high
+){
+
+swings.push({
+price:bars[i].high,
+time:bars[i].openTime
+});
+
+}
+
+}
+
+return swings;
+
+}
+
+
+function nearestBelow(levels,current){
+
+return levels
+.filter(x => x.price < current)
+.sort((a,b)=>b.price-a.price)[0];
+
+}
+
+
+function nearestAbove(levels,current){
+
+return levels
+.filter(x => x.price > current)
+.sort((a,b)=>a.price-b.price)[0];
+
+}
+
+
+function createZone(price,current,type){
+
+const width =
+Math.max(
+2,
+current * 0.0007
+);
+
+if(type==="buy"){
+
+return {
+low:price-width,
+high:price+width
+};
+
+}
+
+return {
+low:price-width,
+high:price+width
+};
+
+}
+
+
+function formatZone(z){
+
+return (
+z.low.toFixed(2)
++
+" - "
++
+z.high.toFixed(2)
+);
+
+}
+
+
+async function runAnalysis(){
+
+const status =
+document.getElementById("status");
+
+status.innerHTML =
+"⏳ Scanning H1 & H4 candles...";
+
+
+try{
+
+const [
+tick,
+h1,
+h4
+] = await Promise.all([
+
+getPrice(),
+
+getCandles("1h"),
+
+getCandles("4h")
+
+]);
+
+
+const current =
+Number(tick.mid);
+
+
+document.getElementById(
+"currentPrice"
+).innerHTML =
+current.toLocaleString(
+"en-US",
+{
+minimumFractionDigits:2,
+maximumFractionDigits:2
+}
+);
+
+
+document.getElementById(
+"marketState"
+).innerHTML =
+"Market: "
++
+(tick.marketState || "unknown")
++
+" • "
++
+(tick.source || "market feed");
+
+
+const lows = [
+...findSwingLows(h1),
+...findSwingLows(h4)
+];
+
+
+const highs = [
+...findSwingHighs(h1),
+...findSwingHighs(h4)
+];
+
+
+const buy =
+nearestBelow(
+lows,
+current
+);
+
+
+const sell =
+nearestAbove(
+highs,
+current
+);
+
+
+if(buy){
+
+const zone =
+createZone(
+buy.price,
+current,
+"buy"
+);
+
+document.getElementById(
+"buyZone"
+).innerHTML =
+formatZone(zone);
+
+document.getElementById(
+"buyInfo"
+).innerHTML =
+"Swing support below current price";
+
+}
+
+
+if(sell){
+
+const zone =
+createZone(
+sell.price,
+current,
+"sell"
+);
+
+document.getElementById(
+"sellZone"
+).innerHTML =
+formatZone(zone);
+
+document.getElementById(
+"sellInfo"
+).innerHTML =
+"Swing resistance above current price";
+
+}
+
+
+if(buy && sell){
+
+const buyDistance =
+current-buy.price;
+
+const sellDistance =
+sell.price-current;
+
+
+if(buyDistance < sellDistance){
+
+status.innerHTML =
+"🟢 Harga lebih dekat kepada AUTO BUY ZONE.";
+
+}else{
+
+status.innerHTML =
+"🔴 Harga lebih dekat kepada AUTO SELL ZONE.";
+
+}
+
+}else{
+
+status.innerHTML =
+"⚠️ Tidak cukup data untuk zone.";
+
+}
+
+
+}catch(err){
+
+console.error(err);
+
+status.innerHTML =
+"❌ Auto Zone gagal load. Cuba Refresh.";
+
+document.getElementById(
+"currentPrice"
+).innerHTML =
+"ERROR";
+
+}
+
+}
+
+
+runAnalysis();
+
+
+setInterval(
+runAnalysis,
+60000
+);
 
 </script>
 
