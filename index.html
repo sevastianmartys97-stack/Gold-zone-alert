@@ -102,7 +102,7 @@ footer{padding:15px;text-align:center;font-size:10px;color:#687482}
 
 <div class="app">
 <header>
- <div><h1>🥇 GOLD AUTO ZONE V6.3.6 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
+ <div><h1>🥇 GOLD AUTO ZONE V6.3.7 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
  <div class="live">● AUTO</div>
 </header>
 
@@ -923,13 +923,13 @@ async function runAnalysis(){
   st.innerHTML="⚠️ Harga cache digunakan • ALERT & TP TRACKER dipause sehingga live kembali.";
  }else if(BUY&&SELL){
   const closer=(CURRENT-BUY.high<SELL.low-CURRENT)?"BUY":"SELL";
-  st.innerHTML="✅ V6.3.6 LIVE • "+closer+" zone lebih dekat • M5/M15 ready scan aktif.";
+  st.innerHTML="✅ V6.3.7 LIVE • "+closer+" zone lebih dekat • M5/M15 ready scan aktif.";
  }else{
-  st.innerHTML="✅ V6.3.6 LIVE • Menunggu clean H1/H4 zone.";
+  st.innerHTML="✅ V6.3.7 LIVE • Menunggu clean H1/H4 zone.";
  }
  analysisBusy=false;
 }
-// V6.3.6: lightweight live-price refresh only. Zone/candle engine remains on 45s cycle.
+// V6.3.7: live-price loop every 2s; every fresh price immediately checks zone/TP/SL-side validity. Zone engine remains 45s.
 let fastPriceBusy=false;
 async function fastPriceRefresh(){
  if(fastPriceBusy)return;
@@ -941,7 +941,7 @@ async function fastPriceRefresh(){
    LIVE_PRICE_OK=tick._fresh!==false;
    PRICE_SOURCE=tick._feed || tick.source || "market feed";
    document.getElementById("currentPrice").innerHTML=CURRENT.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
-   document.getElementById("marketState").innerHTML="🟢 LIVE • "+PRICE_SOURCE+" • AUTO 5s";
+   document.getElementById("marketState").innerHTML="🟢 LIVE • "+PRICE_SOURCE+" • AUTO 2s";
    // Update only lightweight displays against the latest price.
    try{ updateValidity(); updateLiveDistance(); checkAlerts(); updateTracker(); }catch(_){ }
   }
@@ -952,14 +952,18 @@ async function fastPriceRefresh(){
 
 document.getElementById("alertBtn").innerHTML=alertsEnabled?"🔔 ALERT ON":"🔕 ALERT OFF";
 
-// V6.3.6 AUTO START: price first, then full zone scan. No manual Refresh needed after reopening.
+// V6.3.7 AUTO START: price first, then full zone scan.
 async function autoStartApp(){
  try{ await fastPriceRefresh(); }catch(_){ }
  setTimeout(()=>runAnalysis().catch(()=>{}),150);
+ // Startup retries for Android/PWA network wake-up.
+ setTimeout(()=>{ if(!LIVE_PRICE_OK) fastPriceRefresh().catch(()=>{}); },1200);
+ setTimeout(()=>{ if(!LIVE_PRICE_OK) fastPriceRefresh().catch(()=>{}); },3500);
+ setTimeout(()=>{ if(!LIVE_PRICE_OK) fastPriceRefresh().catch(()=>{}); },7000);
 }
 autoStartApp();
 setInterval(runAnalysis,45000);
-setInterval(fastPriceRefresh,5000);
+setInterval(fastPriceRefresh,2000);
 
 // Android/PWA can resume from background without a full page reload.
 document.addEventListener("visibilitychange",()=>{
