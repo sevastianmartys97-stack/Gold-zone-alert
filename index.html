@@ -3,15 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gold Auto Zone V5</title>
+<title>Gold Auto Zone V6</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#0a0f14;color:#fff;font-family:Arial,sans-serif}
-.app{max-width:520px;margin:auto;background:#111821;min-height:100vh}
+.app{max-width:540px;margin:auto;background:#111821;min-height:100vh}
 header{padding:18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #26313c}
 h1{font-size:20px;margin:0}.sub{font-size:11px;color:#8895a4;margin-top:5px}
 .live{padding:8px 10px;border-radius:20px;background:#173d2a;color:#66e49c;font-size:11px}
 .pricebox{padding:18px}.price{font-size:34px;font-weight:bold}.market{font-size:11px;color:#8c98a7;margin-top:5px}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.badge{font-size:11px;padding:7px 9px;border-radius:20px;background:#202a35;color:#dbe5ee}
 .card{margin:0 14px 14px;background:#171f28;border:1px solid #2a3642;border-radius:14px;overflow:hidden}
 .chart{height:400px}
 .zones{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px}
@@ -20,18 +22,25 @@ h1{font-size:20px;margin:0}.sub{font-size:11px;color:#8895a4;margin-top:5px}
 .strength{font-size:12px;margin-top:8px}.detail{font-size:11px;color:#8d99a8;margin-top:8px;line-height:1.55}
 .targets{margin:10px 14px 0;background:#171f28;border:1px solid #2a3642;border-radius:14px;padding:14px}
 .targetgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.targetbox{background:#111821;border-radius:10px;padding:11px}.targetbox b{font-size:12px}.targetbox div{font-size:12px;margin-top:7px;line-height:1.6;color:#cbd4dd}
+.targetbox{background:#111821;border-radius:10px;padding:11px}
+.targetbox b{font-size:12px}.targetbox div{font-size:12px;margin-top:7px;line-height:1.65;color:#cbd4dd}
+.track{margin-top:8px;font-size:11px;line-height:1.5}
+.controls{margin:14px;background:#171f28;border:1px solid #2a3642;border-radius:14px;padding:14px}
+.controlrow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px}
+select{background:#0f151c;color:#fff;border:1px solid #33404d;border-radius:8px;padding:8px}
 .status{margin:14px;padding:14px;border-radius:13px;background:#173225;border:1px solid #347b58;font-size:12px;line-height:1.5}
 .buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 14px 18px}
 button{padding:13px;border:0;border-radius:11px;background:#28684a;color:#fff;font-weight:bold}
 button.secondary{background:#26313c}
+button.warn{background:#6b4f22}
 footer{padding:15px;text-align:center;font-size:10px;color:#687482}
+.good{color:#71e7a7}.bad{color:#ff8c97}.muted{color:#8d99a8}
 </style>
 </head>
 <body>
 <div class="app">
 <header>
- <div><h1>🥇 GOLD AUTO ZONE V5</h1><div class="sub">XAUUSD • H1 + H4 • Zone + Alert + TP</div></div>
+ <div><h1>🥇 GOLD AUTO ZONE V6</h1><div class="sub">XAUUSD • Auto Zone • Alert • Fixed TP • Trend Bias</div></div>
  <div class="live">● AUTO</div>
 </header>
 
@@ -39,6 +48,11 @@ footer{padding:15px;text-align:center;font-size:10px;color:#687482}
  <div class="sub">CURRENT XAUUSD</div>
  <div class="price" id="currentPrice">Loading...</div>
  <div class="market" id="marketState">Reading market...</div>
+ <div class="badges">
+  <div class="badge" id="h1Bias">H1: —</div>
+  <div class="badge" id="h4Bias">H4: —</div>
+  <div class="badge" id="liveDistance">Distance: —</div>
+ </div>
 </div>
 
 <div class="card"><div class="chart">
@@ -48,37 +62,77 @@ style="width:100%;height:100%;border:0" scrolling="no"></iframe>
 
 <div class="zones">
  <div class="zone buy">
-  <div class="title">🟢 AUTO BUY ZONE</div><div class="zoneprice" id="buyZone">Scanning...</div>
-  <div class="strength" id="buyStrength">—</div><div class="detail" id="buyInfo">Scanning support...</div>
+  <div class="title">🟢 AUTO BUY ZONE</div>
+  <div class="zoneprice" id="buyZone">Scanning...</div>
+  <div class="strength" id="buyStrength">—</div>
+  <div class="detail" id="buyInfo">Scanning support...</div>
+  <div class="track" id="buyValidity">Status: —</div>
  </div>
+
  <div class="zone sell">
-  <div class="title">🔴 AUTO SELL ZONE</div><div class="zoneprice" id="sellZone">Scanning...</div>
-  <div class="strength" id="sellStrength">—</div><div class="detail" id="sellInfo">Scanning resistance...</div>
+  <div class="title">🔴 AUTO SELL ZONE</div>
+  <div class="zoneprice" id="sellZone">Scanning...</div>
+  <div class="strength" id="sellStrength">—</div>
+  <div class="detail" id="sellInfo">Scanning resistance...</div>
+  <div class="track" id="sellValidity">Status: —</div>
  </div>
 </div>
 
 <div class="targets">
- <div class="title">🎯 AUTO TP / SL PLAN</div>
+ <div class="title">🎯 AUTO TP / SL + TRACKER</div>
  <div class="targetgrid" style="margin-top:10px">
-  <div class="targetbox"><b>🟢 BUY PLAN</b><div id="buyTargets">Waiting...</div></div>
-  <div class="targetbox"><b>🔴 SELL PLAN</b><div id="sellTargets">Waiting...</div></div>
+  <div class="targetbox">
+   <b>🟢 BUY PLAN</b>
+   <div id="buyTargets">Waiting...</div>
+   <div class="track" id="buyTracker">TP tracker: —</div>
+  </div>
+  <div class="targetbox">
+   <b>🔴 SELL PLAN</b>
+   <div id="sellTargets">Waiting...</div>
+   <div class="track" id="sellTracker">TP tracker: —</div>
+  </div>
+ </div>
+</div>
+
+<div class="controls">
+ <div class="title">🔔 ALERT SETTINGS</div>
+ <div class="controlrow">
+  <span class="detail">Early alert distance</span>
+  <select id="alertDistance" onchange="saveAlertDistance()">
+   <option value="30">30 pips</option>
+   <option value="50">50 pips</option>
+   <option value="100">100 pips</option>
+  </select>
+ </div>
+ <div class="detail" style="margin-top:10px">
+  Alert trigger bila harga hampir zone atau masuk zone. TP1 hit akan keluarkan cadangan protect / break-even.
  </div>
 </div>
 
 <div class="status" id="status">⏳ Scanning H1 & H4 candles...</div>
+
 <div class="buttons">
  <button onclick="runAnalysis()">🔄 REFRESH</button>
  <button class="secondary" id="alertBtn" onclick="enableAlerts()">🔔 ENABLE ALERT</button>
+ <button class="warn" onclick="testAlert()">🧪 TEST ALERT</button>
+ <button class="secondary" onclick="resetTracker()">♻️ RESET TRACKER</button>
 </div>
 
-<footer>V5 • Auto-zone + proximity/hit alerts + calculated TP/SL.<br>TP/SL ialah cadangan teknikal daripada struktur zone, bukan jaminan hasil.</footer>
+<footer>
+V6 • Auto Zone + Trend Bias + Live Distance + Test Alert + TP1 100 / TP2 150 / TP3 200 pips + BE Alert + Zone Invalid.<br>
+TP/SL ialah cadangan teknikal daripada struktur zone, bukan jaminan hasil.
+</footer>
 </div>
 
 <script>
 const API="https://biquote.io/api";
 let alertsEnabled=localStorage.getItem("alertsEnabled")==="1";
+let alertPips=Number(localStorage.getItem("alertPips")||30);
 let lastAlertKey="";
-let BUY=null, SELL=null, CURRENT=null;
+let BUY=null,SELL=null,CURRENT=null;
+let tracker=JSON.parse(localStorage.getItem("v6tracker")||'{"buy":{},"sell":{}}');
+
+document.getElementById("alertDistance").value=String(alertPips);
 
 async function getJSON(url){
  const r=await fetch(url);
@@ -131,14 +185,26 @@ function fmt(n){return Number(n).toFixed(2)}
 function pips(n){return Math.round(Math.abs(n)*10)}
 function strength(z){const s=z.score+z.touches;return s>=10?"⭐⭐⭐ STRONG":s>=6?"⭐⭐ MEDIUM":"⭐ BASIC"}
 
+function trendBias(bars){
+ if(!bars||bars.length<25)return "—";
+ const closes=bars.map(x=>+x.close);
+ const sma=(arr,n)=>arr.slice(-n).reduce((a,b)=>a+b,0)/Math.min(n,arr.length);
+ const fast=sma(closes,9),slow=sma(closes,21);
+ if(fast>slow)return "BULLISH";
+ if(fast<slow)return "BEARISH";
+ return "SIDEWAYS";
+}
+
 function buildTargets(){
  if(BUY){
   const w=BUY.high-BUY.low;
   BUY.entry=(BUY.low+BUY.high)/2;
   BUY.sl=BUY.low-Math.max(w*.8,2);
-  BUY.tp1=BUY.high+Math.max(w,3);
-  BUY.tp2=BUY.high+Math.max(w*2,6);
-  BUY.tp3=SELL?Math.min(SELL.low,BUY.high+Math.max(w*3,10)):BUY.high+Math.max(w*3,10);
+  // Fixed targets from calculated ENTRY.
+  // App convention: $0.10 = 1 pip, so 100/150/200 pips = $10/$15/$20.
+  BUY.tp1=BUY.entry+10;
+  BUY.tp2=BUY.entry+15;
+  BUY.tp3=BUY.entry+20;
   document.getElementById("buyTargets").innerHTML=
    "Entry: "+fmt(BUY.entry)+"<br>SL: "+fmt(BUY.sl)+"<br>TP1: "+fmt(BUY.tp1)+"<br>TP2: "+fmt(BUY.tp2)+"<br>TP3: "+fmt(BUY.tp3);
  }
@@ -146,9 +212,11 @@ function buildTargets(){
   const w=SELL.high-SELL.low;
   SELL.entry=(SELL.low+SELL.high)/2;
   SELL.sl=SELL.high+Math.max(w*.8,2);
-  SELL.tp1=SELL.low-Math.max(w,3);
-  SELL.tp2=SELL.low-Math.max(w*2,6);
-  SELL.tp3=BUY?Math.max(BUY.high,SELL.low-Math.max(w*3,10)):SELL.low-Math.max(w*3,10);
+  // Fixed targets from calculated ENTRY.
+  // App convention: $0.10 = 1 pip, so 100/150/200 pips = $10/$15/$20.
+  SELL.tp1=SELL.entry-10;
+  SELL.tp2=SELL.entry-15;
+  SELL.tp3=SELL.entry-20;
   document.getElementById("sellTargets").innerHTML=
    "Entry: "+fmt(SELL.entry)+"<br>SL: "+fmt(SELL.sl)+"<br>TP1: "+fmt(SELL.tp1)+"<br>TP2: "+fmt(SELL.tp2)+"<br>TP3: "+fmt(SELL.tp3);
  }
@@ -164,23 +232,87 @@ function fireAlert(title,body,key){
   alert(title+"\n\n"+body);
  }
 }
-function checkAlerts(){
- if(!CURRENT)return;
+
+function zoneKey(z){return z?fmt(z.low)+"-"+fmt(z.high):"none"}
+
+function updateValidity(){
  if(BUY){
-  const d=CURRENT-BUY.high;
-  if(CURRENT>=BUY.low&&CURRENT<=BUY.high)
-   fireAlert("🟢 BUY ZONE HIT","XAUUSD "+fmt(CURRENT)+" masuk BUY "+fmt(BUY.low)+" - "+fmt(BUY.high)+" | TP1 "+fmt(BUY.tp1),"buyhit-"+fmt(BUY.low));
-  else if(d>0&&pips(d)<=30)
-   fireAlert("🟢 BUY ZONE APPROACHING","XAUUSD tinggal ~"+pips(d)+" pips ke BUY zone.","buynear-"+fmt(BUY.low));
+  BUY.invalid = CURRENT < BUY.low - Math.max((BUY.high-BUY.low)*0.6,1.5);
+  document.getElementById("buyValidity").innerHTML =
+   BUY.invalid ? '<span class="bad">❌ INVALID / broken below zone</span>' :
+   '<span class="good">✅ VALID</span>';
  }
  if(SELL){
-  const d=SELL.low-CURRENT;
-  if(CURRENT>=SELL.low&&CURRENT<=SELL.high)
-   fireAlert("🔴 SELL ZONE HIT","XAUUSD "+fmt(CURRENT)+" masuk SELL "+fmt(SELL.low)+" - "+fmt(SELL.high)+" | TP1 "+fmt(SELL.tp1),"sellhit-"+fmt(SELL.low));
-  else if(d>0&&pips(d)<=30)
-   fireAlert("🔴 SELL ZONE APPROACHING","XAUUSD tinggal ~"+pips(d)+" pips ke SELL zone.","sellnear-"+fmt(SELL.low));
+  SELL.invalid = CURRENT > SELL.high + Math.max((SELL.high-SELL.low)*0.6,1.5);
+  document.getElementById("sellValidity").innerHTML =
+   SELL.invalid ? '<span class="bad">❌ INVALID / broken above zone</span>' :
+   '<span class="good">✅ VALID</span>';
  }
 }
+
+function updateLiveDistance(){
+ let txt="Distance: —";
+ if(BUY&&SELL){
+  const bd=CURRENT>BUY.high?pips(CURRENT-BUY.high):0;
+  const sd=CURRENT<SELL.low?pips(SELL.low-CURRENT):0;
+  txt=bd<=sd ? "BUY "+bd+" pips" : "SELL "+sd+" pips";
+ }else if(BUY){
+  txt="BUY "+pips(CURRENT-BUY.high)+" pips";
+ }else if(SELL){
+  txt="SELL "+pips(SELL.low-CURRENT)+" pips";
+ }
+ document.getElementById("liveDistance").innerHTML=txt;
+}
+
+function updateTracker(){
+ if(BUY){
+  const k=zoneKey(BUY);
+  tracker.buy[k]=tracker.buy[k]||{tp1:false,tp2:false,tp3:false,be:false};
+  const t=tracker.buy[k];
+
+  if(CURRENT>=BUY.tp1&&!t.tp1){t.tp1=true;fireAlert("✅ BUY TP1 HIT","XAUUSD hit BUY TP1 "+fmt(BUY.tp1)+". Consider protect / break-even.","btp1-"+k)}
+  if(CURRENT>=BUY.tp2&&!t.tp2){t.tp2=true;fireAlert("✅ BUY TP2 HIT","XAUUSD hit BUY TP2 "+fmt(BUY.tp2)+".","btp2-"+k)}
+  if(CURRENT>=BUY.tp3&&!t.tp3){t.tp3=true;fireAlert("✅ BUY TP3 HIT","XAUUSD hit BUY TP3 "+fmt(BUY.tp3)+".","btp3-"+k)}
+  if(t.tp1&&!t.be){t.be=true;fireAlert("🛡️ BUY BREAK-EVEN","TP1 sudah hit. Pertimbang protect position / BE.","bbe-"+k)}
+
+  document.getElementById("buyTracker").innerHTML=
+   "TP1 "+(t.tp1?"✅":"⬜")+" • TP2 "+(t.tp2?"✅":"⬜")+" • TP3 "+(t.tp3?"✅":"⬜");
+ }
+
+ if(SELL){
+  const k=zoneKey(SELL);
+  tracker.sell[k]=tracker.sell[k]||{tp1:false,tp2:false,tp3:false,be:false};
+  const t=tracker.sell[k];
+
+  if(CURRENT<=SELL.tp1&&!t.tp1){t.tp1=true;fireAlert("✅ SELL TP1 HIT","XAUUSD hit SELL TP1 "+fmt(SELL.tp1)+". Consider protect / break-even.","stp1-"+k)}
+  if(CURRENT<=SELL.tp2&&!t.tp2){t.tp2=true;fireAlert("✅ SELL TP2 HIT","XAUUSD hit SELL TP2 "+fmt(SELL.tp2)+".","stp2-"+k)}
+  if(CURRENT<=SELL.tp3&&!t.tp3){t.tp3=true;fireAlert("✅ SELL TP3 HIT","XAUUSD hit SELL TP3 "+fmt(SELL.tp3)+".","stp3-"+k)}
+  if(t.tp1&&!t.be){t.be=true;fireAlert("🛡️ SELL BREAK-EVEN","TP1 sudah hit. Pertimbang protect position / BE.","sbe-"+k)}
+
+  document.getElementById("sellTracker").innerHTML=
+   "TP1 "+(t.tp1?"✅":"⬜")+" • TP2 "+(t.tp2?"✅":"⬜")+" • TP3 "+(t.tp3?"✅":"⬜");
+ }
+ localStorage.setItem("v6tracker",JSON.stringify(tracker));
+}
+
+function checkAlerts(){
+ if(!CURRENT)return;
+ if(BUY&&!BUY.invalid){
+  const d=CURRENT-BUY.high;
+  if(CURRENT>=BUY.low&&CURRENT<=BUY.high)
+   fireAlert("🟢 BUY ZONE HIT","XAUUSD "+fmt(CURRENT)+" masuk BUY "+fmt(BUY.low)+" - "+fmt(BUY.high)+" | TP1 "+fmt(BUY.tp1),"buyhit-"+zoneKey(BUY));
+  else if(d>0&&pips(d)<=alertPips)
+   fireAlert("🟢 BUY ZONE APPROACHING","XAUUSD tinggal ~"+pips(d)+" pips ke BUY zone.","buynear-"+zoneKey(BUY));
+ }
+ if(SELL&&!SELL.invalid){
+  const d=SELL.low-CURRENT;
+  if(CURRENT>=SELL.low&&CURRENT<=SELL.high)
+   fireAlert("🔴 SELL ZONE HIT","XAUUSD "+fmt(CURRENT)+" masuk SELL "+fmt(SELL.low)+" - "+fmt(SELL.high)+" | TP1 "+fmt(SELL.tp1),"sellhit-"+zoneKey(SELL));
+  else if(d>0&&pips(d)<=alertPips)
+   fireAlert("🔴 SELL ZONE APPROACHING","XAUUSD tinggal ~"+pips(d)+" pips ke SELL zone.","sellnear-"+zoneKey(SELL));
+ }
+}
+
 async function enableAlerts(){
  alertsEnabled=!alertsEnabled;
  localStorage.setItem("alertsEnabled",alertsEnabled?"1":"0");
@@ -190,13 +322,46 @@ async function enableAlerts(){
  document.getElementById("alertBtn").innerHTML=alertsEnabled?"🔔 ALERT ON":"🔕 ALERT OFF";
 }
 
+async function testAlert(){
+ if(!alertsEnabled){
+  alertsEnabled=true;
+  localStorage.setItem("alertsEnabled","1");
+  document.getElementById("alertBtn").innerHTML="🔔 ALERT ON";
+ }
+ if("Notification" in window&&Notification.permission==="default"){
+  try{await Notification.requestPermission()}catch(e){}
+ }
+ lastAlertKey="";
+ fireAlert("🧪 TEST ALERT V6","Notification + vibration test berjaya jika anda nampak mesej ini.","test-"+Date.now());
+}
+
+function saveAlertDistance(){
+ alertPips=Number(document.getElementById("alertDistance").value);
+ localStorage.setItem("alertPips",String(alertPips));
+}
+
+function resetTracker(){
+ tracker={buy:{},sell:{}};
+ localStorage.setItem("v6tracker",JSON.stringify(tracker));
+ document.getElementById("buyTracker").innerHTML="TP tracker: reset";
+ document.getElementById("sellTracker").innerHTML="TP tracker: reset";
+ alert("Tracker TP sudah reset.");
+}
+
 async function runAnalysis(){
- const st=document.getElementById("status");st.innerHTML="⏳ Scanning H1 & H4 candles...";
+ const st=document.getElementById("status");
+ st.innerHTML="⏳ Scanning H1 & H4 candles...";
  try{
   const [tick,h1,h4]=await Promise.all([getPrice(),getCandles("1h"),getCandles("4h")]);
   CURRENT=Number(tick.mid);if(!Number.isFinite(CURRENT))throw new Error("Price format error");
+
   document.getElementById("currentPrice").innerHTML=CURRENT.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
   document.getElementById("marketState").innerHTML="Market: "+(tick.marketState||"unknown")+" • "+(tick.source||"market feed");
+
+  const b1=trendBias(h1),b4=trendBias(h4);
+  document.getElementById("h1Bias").innerHTML="H1: "+b1;
+  document.getElementById("h4Bias").innerHTML="H4: "+b4;
+
   const a=atr(h1),hw=Math.max(1.25,Math.min(3,a*.09)),tol=Math.max(2,Math.min(5,a*.16)),gap=Math.max(2,Math.min(6,a*.12));
   const p1=pivots(h1,1),p4=pivots(h4,2);
   BUY=chooseBuy(cluster([...p1.lows,...p4.lows],tol),CURRENT,hw,gap);
@@ -206,22 +371,44 @@ async function runAnalysis(){
    document.getElementById("buyZone").innerHTML=fmt(BUY.low)+" - "+fmt(BUY.high);
    document.getElementById("buyStrength").innerHTML=strength(BUY);
    document.getElementById("buyInfo").innerHTML=BUY.touches+" reaction • ~"+pips(CURRENT-BUY.high)+" pips away";
+  } else {
+   document.getElementById("buyZone").innerHTML="No clean zone";
+   document.getElementById("buyStrength").innerHTML="—";
+   document.getElementById("buyInfo").innerHTML="Tiada support bersih.";
+   document.getElementById("buyValidity").innerHTML="Status: —";
   }
+
   if(SELL){
    document.getElementById("sellZone").innerHTML=fmt(SELL.low)+" - "+fmt(SELL.high);
    document.getElementById("sellStrength").innerHTML=strength(SELL);
    document.getElementById("sellInfo").innerHTML=SELL.touches+" reaction • ~"+pips(SELL.low-CURRENT)+" pips away";
+  } else {
+   document.getElementById("sellZone").innerHTML="No clean zone";
+   document.getElementById("sellStrength").innerHTML="—";
+   document.getElementById("sellInfo").innerHTML="Tiada resistance bersih.";
+   document.getElementById("sellValidity").innerHTML="Status: —";
   }
-  buildTargets();checkAlerts();
+
+  buildTargets();
+  updateValidity();
+  updateLiveDistance();
+  checkAlerts();
+  updateTracker();
+
   if(BUY&&SELL){
-   st.innerHTML=(CURRENT-BUY.high<SELL.low-CURRENT)
-    ?"🟢 BUY zone lebih dekat • Alert akan aktif ≤30 pips / bila zone hit."
-    :"🔴 SELL zone lebih dekat • Alert akan aktif ≤30 pips / bila zone hit.";
-  }else st.innerHTML="⚠️ Menunggu clean H1/H4 zone.";
+   const closer=(CURRENT-BUY.high<SELL.low-CURRENT)?"BUY":"SELL";
+   st.innerHTML="✅ V6 active • "+closer+" zone lebih dekat • Early alert "+alertPips+" pips • TP tracker aktif.";
+  }else{
+   st.innerHTML="⚠️ V6 active • Menunggu clean H1/H4 zone.";
+  }
+
  }catch(e){
-  console.error(e);document.getElementById("currentPrice").innerHTML="ERROR";st.innerHTML="❌ "+e.message;
+  console.error(e);
+  document.getElementById("currentPrice").innerHTML="ERROR";
+  st.innerHTML="❌ "+e.message;
  }
 }
+
 document.getElementById("alertBtn").innerHTML=alertsEnabled?"🔔 ALERT ON":"🔕 ALERT OFF";
 runAnalysis();
 setInterval(runAnalysis,60000);
