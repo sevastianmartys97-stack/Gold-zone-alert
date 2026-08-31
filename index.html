@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gold Auto Zone V6.3.4</title>
+<title>Gold Auto Zone V6.3.8</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#0a0f14;color:#fff;font-family:Arial,sans-serif}
@@ -102,7 +102,7 @@ footer{padding:15px;text-align:center;font-size:10px;color:#687482}
 
 <div class="app">
 <header>
- <div><h1>🥇 GOLD AUTO ZONE V6.3.7 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
+ <div><h1>🥇 GOLD AUTO ZONE V6.3.8 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
  <div class="live">● AUTO</div>
 </header>
 
@@ -923,9 +923,9 @@ async function runAnalysis(){
   st.innerHTML="⚠️ Harga cache digunakan • ALERT & TP TRACKER dipause sehingga live kembali.";
  }else if(BUY&&SELL){
   const closer=(CURRENT-BUY.high<SELL.low-CURRENT)?"BUY":"SELL";
-  st.innerHTML="✅ V6.3.7 LIVE • "+closer+" zone lebih dekat • M5/M15 ready scan aktif.";
+  st.innerHTML="✅ V6.3.8 LIVE • "+closer+" zone lebih dekat • M5/M15 ready scan aktif.";
  }else{
-  st.innerHTML="✅ V6.3.7 LIVE • Menunggu clean H1/H4 zone.";
+  st.innerHTML="✅ V6.3.8 LIVE • Menunggu clean H1/H4 zone.";
  }
  analysisBusy=false;
 }
@@ -952,14 +952,35 @@ async function fastPriceRefresh(){
 
 document.getElementById("alertBtn").innerHTML=alertsEnabled?"🔔 ALERT ON":"🔕 ALERT OFF";
 
-// V6.3.7 AUTO START: price first, then full zone scan.
+// V6.3.8 PRICE-FIRST STARTUP: show last known price instantly, then fetch live price.
+function showInstantCachedPrice(){
+ try{
+  const tick=cachedTick();
+  const p=Number(tick&&tick.mid);
+  if(Number.isFinite(p)){
+   CURRENT=p;
+   document.getElementById("currentPrice").textContent=CURRENT.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+   document.getElementById("marketState").textContent="🟡 LAST PRICE • connecting live feed...";
+  }else{
+   document.getElementById("currentPrice").textContent="CONNECTING...";
+   document.getElementById("marketState").textContent="Connecting live price...";
+  }
+ }catch(_){ }
+}
+
+function startBackgroundZoneScan(){
+ // Let price render first; zone scan starts quietly after the UI is already usable.
+ setTimeout(()=>runAnalysis().catch(()=>{}),1800);
+}
+
 async function autoStartApp(){
- try{ await fastPriceRefresh(); }catch(_){ }
- setTimeout(()=>runAnalysis().catch(()=>{}),150);
- // Startup retries for Android/PWA network wake-up.
- setTimeout(()=>{ if(!LIVE_PRICE_OK) fastPriceRefresh().catch(()=>{}); },1200);
- setTimeout(()=>{ if(!LIVE_PRICE_OK) fastPriceRefresh().catch(()=>{}); },3500);
- setTimeout(()=>{ if(!LIVE_PRICE_OK) fastPriceRefresh().catch(()=>{}); },7000);
+ showInstantCachedPrice();
+ // Do not block startup on candle scanning.
+ fastPriceRefresh().catch(()=>{});
+ setTimeout(()=>fastPriceRefresh().catch(()=>{}),700);
+ setTimeout(()=>fastPriceRefresh().catch(()=>{}),1800);
+ setTimeout(()=>fastPriceRefresh().catch(()=>{}),4000);
+ startBackgroundZoneScan();
 }
 autoStartApp();
 setInterval(runAnalysis,45000);
