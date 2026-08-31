@@ -3,582 +3,330 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-
-<title>Gold Auto Zone</title>
-
+<title>Gold Auto Zone V4</title>
 <style>
 *{box-sizing:border-box}
-
-body{
-margin:0;
-background:#0a0f14;
-color:#fff;
-font-family:Arial,sans-serif;
-}
-
-.app{
-max-width:520px;
-margin:auto;
-background:#111821;
-min-height:100vh;
-}
-
-header{
-padding:18px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-border-bottom:1px solid #26313c;
-}
-
-h1{
-font-size:20px;
-margin:0;
-}
-
-.sub{
-font-size:11px;
-color:#8895a4;
-margin-top:5px;
-}
-
-.live{
-padding:8px 10px;
-border-radius:20px;
-background:#173d2a;
-color:#66e49c;
-font-size:11px;
-}
-
-.pricebox{
-padding:18px;
-}
-
-.price{
-font-size:34px;
-font-weight:bold;
-}
-
-.market{
-font-size:11px;
-color:#8c98a7;
-margin-top:5px;
-}
-
-.card{
-margin:0 14px 14px;
-background:#171f28;
-border:1px solid #2a3642;
-border-radius:14px;
-overflow:hidden;
-}
-
-.chart{
-height:400px;
-}
-
-.zones{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-padding:0 14px;
-}
-
-.zone{
-padding:14px;
-border-radius:13px;
-background:#171f28;
-}
-
-.buy{
-border:1px solid #287b55;
-}
-
-.sell{
-border:1px solid #8a444a;
-}
-
-.title{
-font-size:12px;
-font-weight:bold;
-}
-
-.zoneprice{
-font-size:20px;
-font-weight:bold;
-margin-top:8px;
-}
-
-.detail{
-font-size:11px;
-color:#8d99a8;
-margin-top:8px;
-line-height:1.5;
-}
-
-.status{
-margin:14px;
-padding:14px;
-border-radius:13px;
-background:#173225;
-border:1px solid #347b58;
-font-size:12px;
-}
-
-.refresh{
-margin:0 14px 18px;
-width:calc(100% - 28px);
-padding:13px;
-border:0;
-border-radius:11px;
-background:#28684a;
-color:#fff;
-font-weight:bold;
-}
-
-footer{
-padding:15px;
-text-align:center;
-font-size:10px;
-color:#687482;
-}
+body{margin:0;background:#0a0f14;color:#fff;font-family:Arial,sans-serif}
+.app{max-width:520px;margin:auto;background:#111821;min-height:100vh}
+header{padding:18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #26313c}
+h1{font-size:20px;margin:0}.sub{font-size:11px;color:#8895a4;margin-top:5px}
+.live{padding:8px 10px;border-radius:20px;background:#173d2a;color:#66e49c;font-size:11px}
+.pricebox{padding:18px}.price{font-size:34px;font-weight:bold}.market{font-size:11px;color:#8c98a7;margin-top:5px}
+.card{margin:0 14px 14px;background:#171f28;border:1px solid #2a3642;border-radius:14px;overflow:hidden}
+.chart{height:400px}
+.zones{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px}
+.zone{padding:14px;border-radius:13px;background:#171f28}
+.buy{border:1px solid #287b55}.sell{border:1px solid #8a444a}
+.title{font-size:12px;font-weight:bold}.zoneprice{font-size:20px;font-weight:bold;margin-top:8px}
+.strength{font-size:12px;margin-top:8px}.detail{font-size:11px;color:#8d99a8;margin-top:8px;line-height:1.55}
+.status{margin:14px;padding:14px;border-radius:13px;background:#173225;border:1px solid #347b58;font-size:12px;line-height:1.5}
+.refresh{margin:0 14px 18px;width:calc(100% - 28px);padding:13px;border:0;border-radius:11px;background:#28684a;color:#fff;font-weight:bold}
+footer{padding:15px;text-align:center;font-size:10px;color:#687482}
 </style>
 </head>
 
 <body>
-
 <div class="app">
 
 <header>
-
-<div>
-<h1>🥇 GOLD AUTO ZONE</h1>
-<div class="sub">XAUUSD • H1 + H4 Auto Analysis</div>
-</div>
-
-<div class="live">● AUTO</div>
-
+  <div>
+    <h1>🥇 GOLD AUTO ZONE V4</h1>
+    <div class="sub">XAUUSD • H1 + H4 • Separated Strong Zones</div>
+  </div>
+  <div class="live">● AUTO</div>
 </header>
 
-
 <div class="pricebox">
-
-<div class="sub">CURRENT XAUUSD</div>
-
-<div class="price" id="currentPrice">
-Loading...
+  <div class="sub">CURRENT XAUUSD</div>
+  <div class="price" id="currentPrice">Loading...</div>
+  <div class="market" id="marketState">Reading market...</div>
 </div>
-
-<div class="market" id="marketState">
-Reading market...
-</div>
-
-</div>
-
 
 <div class="card">
-
-<div class="chart">
-
-<iframe
-src="https://s.tradingview.com/widgetembed/?symbol=OANDA%3AXAUUSD&interval=60&theme=dark&style=1&timezone=Asia%2FKuala_Lumpur&withdateranges=1&hideideas=1"
-style="width:100%;height:100%;border:0;"
-scrolling="no">
-</iframe>
-
+  <div class="chart">
+    <iframe
+      src="https://s.tradingview.com/widgetembed/?symbol=OANDA%3AXAUUSD&interval=60&theme=dark&style=1&timezone=Asia%2FKuala_Lumpur&withdateranges=1&hideideas=1"
+      style="width:100%;height:100%;border:0"
+      scrolling="no">
+    </iframe>
+  </div>
 </div>
-
-</div>
-
 
 <div class="zones">
+  <div class="zone buy">
+    <div class="title">🟢 AUTO BUY ZONE</div>
+    <div class="zoneprice" id="buyZone">Scanning...</div>
+    <div class="strength" id="buyStrength">—</div>
+    <div class="detail" id="buyInfo">Cari support H1/H4 di bawah harga semasa.</div>
+  </div>
 
-<div class="zone buy">
-
-<div class="title">
-🟢 AUTO BUY ZONE
+  <div class="zone sell">
+    <div class="title">🔴 AUTO SELL ZONE</div>
+    <div class="zoneprice" id="sellZone">Scanning...</div>
+    <div class="strength" id="sellStrength">—</div>
+    <div class="detail" id="sellInfo">Cari resistance H1/H4 di atas harga semasa.</div>
+  </div>
 </div>
 
-<div class="zoneprice" id="buyZone">
-Scanning...
-</div>
+<div class="status" id="status">⏳ Scanning H1 & H4 candles...</div>
 
-<div class="detail" id="buyInfo">
-Analysing H1/H4 swing lows
-</div>
-
-</div>
-
-
-<div class="zone sell">
-
-<div class="title">
-🔴 AUTO SELL ZONE
-</div>
-
-<div class="zoneprice" id="sellZone">
-Scanning...
-</div>
-
-<div class="detail" id="sellInfo">
-Analysing H1/H4 swing highs
-</div>
-
-</div>
-
-</div>
-
-
-<div class="status" id="status">
-⏳ Scanning XAUUSD candles...
-</div>
-
-
-<button class="refresh" onclick="runAnalysis()">
-🔄 REFRESH AUTO ZONE
-</button>
-
+<button class="refresh" onclick="runAnalysis()">🔄 REFRESH AUTO ZONE</button>
 
 <footer>
-Auto Zone Prototype V3<br>
-Zone ialah analisis teknikal automatik, bukan signal pasti.
+V4 • Auto support/resistance clustering • Zone tidak bertindih secara sengaja.<br>
+Bukan signal trading pasti.
 </footer>
 
 </div>
 
-
 <script>
+const API = "https://biquote.io/api";
 
-const API =
-"https://biquote.io/api";
-
+async function getJSON(url){
+  const r = await fetch(url);
+  if(!r.ok) throw new Error("HTTP " + r.status);
+  return await r.json();
+}
 
 async function getPrice(){
-
-const r =
-await fetch(API + "/XAUUSD");
-
-if(!r.ok){
-throw new Error("Price API error");
+  return await getJSON(API + "/XAUUSD");
 }
-
-return await r.json();
-
-}
-
 
 async function getCandles(interval){
-
-const r =
-await fetch(
-API +
-"/XAUUSD/ohlc?interval=" +
-interval +
-"&limit=200"
-);
-
-if(!r.ok){
-throw new Error("Candle API error");
+  const data = await getJSON(API + "/XAUUSD/ohlc?interval=" + interval + "&limit=240");
+  if(!data || !Array.isArray(data.bars)) throw new Error("OHLC format error");
+  return data.bars
+    .filter(b => !b.isOpen)
+    .slice()
+    .reverse();
 }
 
-const data =
-await r.json();
-
-return data.bars
-.filter(x => !x.isOpen)
-.reverse();
-
+function getATR(bars, period=14){
+  if(bars.length < period + 2) return 10;
+  const tr = [];
+  for(let i=1;i<bars.length;i++){
+    const h = Number(bars[i].high);
+    const l = Number(bars[i].low);
+    const pc = Number(bars[i-1].close);
+    tr.push(Math.max(h-l, Math.abs(h-pc), Math.abs(l-pc)));
+  }
+  const recent = tr.slice(-period);
+  return recent.reduce((a,b)=>a+b,0) / recent.length;
 }
 
+function findPivots(bars, weight){
+  const lows = [];
+  const highs = [];
 
-function findSwingLows(bars){
+  for(let i=2;i<bars.length-2;i++){
+    const low = Number(bars[i].low);
+    const high = Number(bars[i].high);
 
-let swings=[];
+    const isLow =
+      low < Number(bars[i-1].low) &&
+      low < Number(bars[i-2].low) &&
+      low < Number(bars[i+1].low) &&
+      low < Number(bars[i+2].low);
 
-for(let i=2;i<bars.length-2;i++){
+    const isHigh =
+      high > Number(bars[i-1].high) &&
+      high > Number(bars[i-2].high) &&
+      high > Number(bars[i+1].high) &&
+      high > Number(bars[i+2].high);
 
-if(
-bars[i].low < bars[i-1].low &&
-bars[i].low < bars[i-2].low &&
-bars[i].low < bars[i+1].low &&
-bars[i].low < bars[i+2].low
-){
+    if(isLow) lows.push({price:low, weight});
+    if(isHigh) highs.push({price:high, weight});
+  }
 
-swings.push({
-price:bars[i].low,
-time:bars[i].openTime
-});
-
+  return {lows, highs};
 }
 
+function cluster(levels, tolerance){
+  const sorted = levels.slice().sort((a,b)=>a.price-b.price);
+  const out = [];
+
+  for(const lv of sorted){
+    let found = null;
+
+    for(const c of out){
+      if(Math.abs(c.center - lv.price) <= tolerance){
+        found = c;
+        break;
+      }
+    }
+
+    if(!found){
+      found = {center:lv.price, items:[], score:0};
+      out.push(found);
+    }
+
+    found.items.push(lv);
+    found.score += lv.weight;
+    found.center = found.items.reduce((s,x)=>s+x.price,0) / found.items.length;
+  }
+
+  return out;
 }
 
-return swings;
-
+function zoneFrom(c, halfWidth){
+  return {
+    low: c.center - halfWidth,
+    high: c.center + halfWidth,
+    touches: c.items.length,
+    score: c.score
+  };
 }
 
-
-function findSwingHighs(bars){
-
-let swings=[];
-
-for(let i=2;i<bars.length-2;i++){
-
-if(
-bars[i].high > bars[i-1].high &&
-bars[i].high > bars[i-2].high &&
-bars[i].high > bars[i+1].high &&
-bars[i].high > bars[i+2].high
-){
-
-swings.push({
-price:bars[i].high,
-time:bars[i].openTime
-});
-
+function zoneStrength(score, touches){
+  const total = score + touches;
+  if(total >= 10) return "⭐⭐⭐ STRONG";
+  if(total >= 6) return "⭐⭐ MEDIUM";
+  return "⭐ BASIC";
 }
 
+function fmt(n){
+  return Number(n).toFixed(2);
 }
 
-return swings;
-
+function toPips(usd){
+  return Math.round(usd * 10);
 }
 
+function chooseBuy(clusters, current, halfWidth, minGap){
+  const zones = clusters
+    .map(c => zoneFrom(c, halfWidth))
+    .filter(z => z.high < current - minGap);
 
-function nearestBelow(levels,current){
+  if(!zones.length) return null;
 
-return levels
-.filter(x => x.price < current)
-.sort((a,b)=>b.price-a.price)[0];
+  zones.sort((a,b)=>{
+    const da = current - a.high;
+    const db = current - b.high;
+    if(Math.abs(da-db) > 0.0001) return da-db;
+    return (b.score+b.touches) - (a.score+a.touches);
+  });
 
+  return zones[0];
 }
 
+function chooseSell(clusters, current, halfWidth, minGap){
+  const zones = clusters
+    .map(c => zoneFrom(c, halfWidth))
+    .filter(z => z.low > current + minGap);
 
-function nearestAbove(levels,current){
+  if(!zones.length) return null;
 
-return levels
-.filter(x => x.price > current)
-.sort((a,b)=>a.price-b.price)[0];
+  zones.sort((a,b)=>{
+    const da = a.low - current;
+    const db = b.low - current;
+    if(Math.abs(da-db) > 0.0001) return da-db;
+    return (b.score+b.touches) - (a.score+a.touches);
+  });
 
+  return zones[0];
 }
-
-
-function createZone(price,current,type){
-
-const width =
-Math.max(
-2,
-current * 0.0007
-);
-
-if(type==="buy"){
-
-return {
-low:price-width,
-high:price+width
-};
-
-}
-
-return {
-low:price-width,
-high:price+width
-};
-
-}
-
-
-function formatZone(z){
-
-return (
-z.low.toFixed(2)
-+
-" - "
-+
-z.high.toFixed(2)
-);
-
-}
-
 
 async function runAnalysis(){
+  const status = document.getElementById("status");
+  status.innerHTML = "⏳ Scanning H1 & H4 candles...";
 
-const status =
-document.getElementById("status");
+  try{
+    const [tick, h1, h4] = await Promise.all([
+      getPrice(),
+      getCandles("1h"),
+      getCandles("4h")
+    ]);
 
-status.innerHTML =
-"⏳ Scanning H1 & H4 candles...";
+    const current = Number(tick.mid);
+    if(!Number.isFinite(current)) throw new Error("Price format error");
 
+    document.getElementById("currentPrice").innerHTML =
+      current.toLocaleString("en-US", {
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+      });
 
-try{
+    document.getElementById("marketState").innerHTML =
+      "Market: " + (tick.marketState || "unknown") +
+      " • " + (tick.source || "market feed");
 
-const [
-tick,
-h1,
-h4
-] = await Promise.all([
+    const atr = getATR(h1, 14);
 
-getPrice(),
+    const halfWidth = Math.max(1.25, Math.min(3.0, atr * 0.09));
+    const tolerance = Math.max(2.0, Math.min(5.0, atr * 0.16));
+    const minGap = Math.max(2.0, Math.min(6.0, atr * 0.12));
 
-getCandles("1h"),
+    const p1 = findPivots(h1, 1);
+    const p4 = findPivots(h4, 2);
 
-getCandles("4h")
+    const lowClusters = cluster([...p1.lows, ...p4.lows], tolerance);
+    const highClusters = cluster([...p1.highs, ...p4.highs], tolerance);
 
-]);
+    const buy = chooseBuy(lowClusters, current, halfWidth, minGap);
+    const sell = chooseSell(highClusters, current, halfWidth, minGap);
 
+    if(buy){
+      document.getElementById("buyZone").innerHTML =
+        fmt(buy.low) + " - " + fmt(buy.high);
 
-const current =
-Number(tick.mid);
+      document.getElementById("buyStrength").innerHTML =
+        zoneStrength(buy.score, buy.touches);
 
+      const dist = current - buy.high;
+      document.getElementById("buyInfo").innerHTML =
+        buy.touches + " reaction • Jarak " +
+        fmt(dist) + " USD (~" + toPips(dist) + " pips)";
+    }else{
+      document.getElementById("buyZone").innerHTML = "No clean zone";
+      document.getElementById("buyStrength").innerHTML = "—";
+      document.getElementById("buyInfo").innerHTML =
+        "Tiada support bersih melepasi filter V4.";
+    }
 
-document.getElementById(
-"currentPrice"
-).innerHTML =
-current.toLocaleString(
-"en-US",
-{
-minimumFractionDigits:2,
-maximumFractionDigits:2
+    if(sell){
+      document.getElementById("sellZone").innerHTML =
+        fmt(sell.low) + " - " + fmt(sell.high);
+
+      document.getElementById("sellStrength").innerHTML =
+        zoneStrength(sell.score, sell.touches);
+
+      const dist = sell.low - current;
+      document.getElementById("sellInfo").innerHTML =
+        sell.touches + " reaction • Jarak " +
+        fmt(dist) + " USD (~" + toPips(dist) + " pips)";
+    }else{
+      document.getElementById("sellZone").innerHTML = "No clean zone";
+      document.getElementById("sellStrength").innerHTML = "—";
+      document.getElementById("sellInfo").innerHTML =
+        "Tiada resistance bersih melepasi filter V4.";
+    }
+
+    if(buy && sell){
+      const buyDist = current - buy.high;
+      const sellDist = sell.low - current;
+
+      if(buyDist < sellDist){
+        status.innerHTML =
+          "🟢 BUY zone lebih dekat. BUY dan SELL zone dipisahkan dari harga semasa.";
+      }else{
+        status.innerHTML =
+          "🔴 SELL zone lebih dekat. BUY dan SELL zone dipisahkan dari harga semasa.";
+      }
+    }else{
+      status.innerHTML =
+        "⚠️ V4 hanya memaparkan zone yang lulus filter separation.";
+    }
+
+  }catch(err){
+    console.error(err);
+    document.getElementById("currentPrice").innerHTML = "ERROR";
+    status.innerHTML =
+      "❌ Auto Zone gagal load: " + err.message;
+  }
 }
-);
-
-
-document.getElementById(
-"marketState"
-).innerHTML =
-"Market: "
-+
-(tick.marketState || "unknown")
-+
-" • "
-+
-(tick.source || "market feed");
-
-
-const lows = [
-...findSwingLows(h1),
-...findSwingLows(h4)
-];
-
-
-const highs = [
-...findSwingHighs(h1),
-...findSwingHighs(h4)
-];
-
-
-const buy =
-nearestBelow(
-lows,
-current
-);
-
-
-const sell =
-nearestAbove(
-highs,
-current
-);
-
-
-if(buy){
-
-const zone =
-createZone(
-buy.price,
-current,
-"buy"
-);
-
-document.getElementById(
-"buyZone"
-).innerHTML =
-formatZone(zone);
-
-document.getElementById(
-"buyInfo"
-).innerHTML =
-"Swing support below current price";
-
-}
-
-
-if(sell){
-
-const zone =
-createZone(
-sell.price,
-current,
-"sell"
-);
-
-document.getElementById(
-"sellZone"
-).innerHTML =
-formatZone(zone);
-
-document.getElementById(
-"sellInfo"
-).innerHTML =
-"Swing resistance above current price";
-
-}
-
-
-if(buy && sell){
-
-const buyDistance =
-current-buy.price;
-
-const sellDistance =
-sell.price-current;
-
-
-if(buyDistance < sellDistance){
-
-status.innerHTML =
-"🟢 Harga lebih dekat kepada AUTO BUY ZONE.";
-
-}else{
-
-status.innerHTML =
-"🔴 Harga lebih dekat kepada AUTO SELL ZONE.";
-
-}
-
-}else{
-
-status.innerHTML =
-"⚠️ Tidak cukup data untuk zone.";
-
-}
-
-
-}catch(err){
-
-console.error(err);
-
-status.innerHTML =
-"❌ Auto Zone gagal load. Cuba Refresh.";
-
-document.getElementById(
-"currentPrice"
-).innerHTML =
-"ERROR";
-
-}
-
-}
-
 
 runAnalysis();
-
-
-setInterval(
-runAnalysis,
-60000
-);
-
+setInterval(runAnalysis, 60000);
 </script>
 
 </body>
