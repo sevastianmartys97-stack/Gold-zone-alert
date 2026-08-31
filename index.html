@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gold Auto Zone V6.3.3</title>
+<title>Gold Auto Zone V6.3.4</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#0a0f14;color:#fff;font-family:Arial,sans-serif}
@@ -63,6 +63,23 @@ footer{padding:15px;text-align:center;font-size:10px;color:#687482}
 
 
 <style>
+.intraday{margin:0 14px 14px;background:#101923;border:1px solid #d5a900;border-radius:14px;overflow:hidden}
+.intradayHead{padding:12px 14px;background:#13263b;border-bottom:1px solid #334d66;display:flex;justify-content:space-between;align-items:center}
+.intradayHead .newtag{font-size:10px;font-weight:800;background:#e4b400;color:#111;padding:4px 7px;border-radius:6px}
+.intraGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#283644}
+.intraBox{background:#101923;padding:11px 9px;min-height:98px}
+.intraLabel{font-size:9px;color:#9aa7b5;text-transform:uppercase}
+.intraValue{font-size:13px;font-weight:800;margin-top:7px;line-height:1.35}
+.intraSmall{font-size:10px;color:#99a6b5;margin-top:7px;line-height:1.4}
+.intraPlan{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:#283644;border-top:1px solid #33404d}
+.intraPlan>div{background:#101923;padding:10px 7px;text-align:center}
+.intraPlan .k{font-size:9px;color:#8d99a8}.intraPlan .v{font-size:12px;font-weight:800;margin-top:5px}
+.intraFoot{padding:10px 12px;font-size:10px;color:#aab5c2;line-height:1.5}
+.intraBuy{color:#71e7a7}.intraSell{color:#ff8c97}.intraWait{color:#ffd66b}
+@media(max-width:480px){.intraGrid{grid-template-columns:1fr 1fr}.intraPlan{grid-template-columns:repeat(5,1fr)}.intraPlan .v{font-size:10px}}
+</style>
+
+<style>
 #appToast{
  position:fixed;left:50%;bottom:24px;transform:translateX(-50%);
  z-index:10050;max-width:88vw;min-width:260px;
@@ -85,7 +102,7 @@ footer{padding:15px;text-align:center;font-size:10px;color:#687482}
 
 <div class="app">
 <header>
- <div><h1>🥇 GOLD AUTO ZONE V6.3.3 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
+ <div><h1>🥇 GOLD AUTO ZONE V6.3.4 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
  <div class="live">● AUTO</div>
 </header>
 
@@ -140,6 +157,27 @@ style="width:100%;height:100%;border:0" scrolling="no"></iframe>
  <div class="signalnote" id="readySummary">🟡 READY SIGNAL: Menunggu harga masuk zone entry.</div>
 </div>
 
+<div class="intraday" id="intradayCard">
+ <div class="intradayHead">
+  <div class="title">⚡ INTRADAY SETUP <span class="muted">(H1 / M15 / M5)</span></div>
+  <span class="newtag">NEW</span>
+ </div>
+ <div class="intraGrid">
+  <div class="intraBox"><div class="intraLabel">H1 TREND</div><div class="intraValue" id="intraTrend">SCANNING...</div><div class="intraSmall" id="intraTrendDetail">Bias utama intraday</div></div>
+  <div class="intraBox"><div class="intraLabel">M15 ENTRY ZONE</div><div class="intraValue" id="intraZone">SCANNING...</div><div class="intraSmall" id="intraZoneDetail">Cari demand / supply terdekat</div></div>
+  <div class="intraBox"><div class="intraLabel">M5 CONFIRMATION</div><div class="intraValue" id="intraM5">WAIT</div><div class="intraSmall" id="intraM5Detail">Tunggu harga masuk M15 zone</div></div>
+  <div class="intraBox"><div class="intraLabel">INTRADAY SIGNAL</div><div class="intraValue" id="intraSignal">WAIT / NO TRADE</div><div class="intraSmall" id="intraSignalDetail">Syarat belum lengkap</div></div>
+ </div>
+ <div class="intraPlan">
+  <div><div class="k">ENTRY</div><div class="v" id="intraEntry">—</div></div>
+  <div><div class="k">SL</div><div class="v bad" id="intraSL">—</div></div>
+  <div><div class="k">TP1</div><div class="v good" id="intraTP1">—</div></div>
+  <div><div class="k">TP2</div><div class="v good" id="intraTP2">—</div></div>
+  <div><div class="k">TP3</div><div class="v good" id="intraTP3">—</div></div>
+ </div>
+ <div class="intraFoot" id="intraQuality">🟡 ENTRY QUALITY: WAIT • H1 trend → M15 zone → M5 confirmation.</div>
+</div>
+
 <div class="targets">
  <div class="title">🎯 AUTO TP / SL + TRACKER</div>
  <div class="targetgrid" style="margin-top:10px">
@@ -181,7 +219,7 @@ style="width:100%;height:100%;border:0" scrolling="no"></iframe>
 </div>
 
 <footer>
-V6.3.3 PWA • ALERT + STATUS FIX + Stable H1/H4 Auto Zone + M5/M15 Ready Signal • TP1 100 / TP2 150 / TP3 200 pips.<br>
+V6.3.4 PWA • V6.3.3 Stable Core + Intraday H1/M15/M5 • TP1 100 / TP2 150 / TP3 200 pips.<br>
 TP/SL ialah cadangan teknikal daripada struktur zone, bukan jaminan hasil.
 </footer>
 </div>
@@ -659,6 +697,116 @@ async function scanReadySignal(){
  }
 }
 
+
+function setIntraText(id,text,cls=""){
+ const el=document.getElementById(id); if(!el)return;
+ el.textContent=text; el.className=(id.startsWith("intra")?"intraValue ":"")+cls;
+}
+
+function clearIntraday(message="Menunggu data..."){
+ setIntraText("intraTrend","WAIT","intraWait");
+ document.getElementById("intraTrendDetail").textContent=message;
+ setIntraText("intraZone","WAIT","intraWait");
+ document.getElementById("intraZoneDetail").textContent="Belum ada M15 zone aktif";
+ setIntraText("intraM5","WAIT","intraWait");
+ document.getElementById("intraM5Detail").textContent="Tunggu syarat lengkap";
+ setIntraText("intraSignal","WAIT / NO TRADE","intraWait");
+ document.getElementById("intraSignalDetail").textContent="Syarat belum lengkap";
+ ["intraEntry","intraSL","intraTP1","intraTP2","intraTP3"].forEach(id=>document.getElementById(id).textContent="—");
+ document.getElementById("intraQuality").textContent="🟡 ENTRY QUALITY: WAIT • H1 trend → M15 zone → M5 confirmation.";
+}
+
+async function scanIntraday(h1Bars){
+ try{
+  if(!LIVE_PRICE_OK || !Number.isFinite(CURRENT) || !Array.isArray(h1Bars) || h1Bars.length<25){
+   clearIntraday("Menunggu live price / H1..."); return;
+  }
+  const bias=trendBias(h1Bars);
+  let side=null;
+  if(bias==="BULLISH") side="BUY";
+  else if(bias==="BEARISH") side="SELL";
+
+  setIntraText("intraTrend",bias,bias==="BULLISH"?"intraBuy":bias==="BEARISH"?"intraSell":"intraWait");
+  document.getElementById("intraTrendDetail").textContent=side?"H1 bias memilih arah "+side:"H1 neutral — elak paksa signal";
+  if(!side){
+   setIntraText("intraZone","NO TRADE","intraWait");
+   setIntraText("intraM5","WAIT","intraWait");
+   setIntraText("intraSignal","WAIT / NO TRADE","intraWait");
+   document.getElementById("intraSignalDetail").textContent="H1 belum jelas";
+   document.getElementById("intraQuality").textContent="⚪ ENTRY QUALITY: — • Tunggu H1 bullish/bearish jelas.";
+   return;
+  }
+
+  const m15=await getSignalCandles("15m");
+  if(!Array.isArray(m15)||m15.length<30) throw new Error("M15 data belum cukup");
+  const a15=atr(m15), hw=Math.max(.6,Math.min(1.8,a15*.11)), tol=Math.max(1,Math.min(3,a15*.18)), gap=Math.max(.5,Math.min(2,a15*.08));
+  const pv=pivots(m15,1);
+  const zone=side==="BUY" ? chooseBuy(cluster(pv.lows,tol),CURRENT,hw,gap) : chooseSell(cluster(pv.highs,tol),CURRENT,hw,gap);
+  if(!zone){
+   setIntraText("intraZone","NO CLEAN ZONE","intraWait");
+   document.getElementById("intraZoneDetail").textContent="M15 belum bentuk "+(side==="BUY"?"demand":"supply")+" bersih";
+   setIntraText("intraM5","WAIT","intraWait");
+   setIntraText("intraSignal","WAIT / NO TRADE","intraWait");
+   document.getElementById("intraSignalDetail").textContent="Tiada zone entry M15";
+   document.getElementById("intraQuality").textContent="🟡 ENTRY QUALITY: WAIT • Tiada clean M15 zone.";
+   return;
+  }
+
+  setIntraText("intraZone",fmt(zone.low)+" - "+fmt(zone.high),side==="BUY"?"intraBuy":"intraSell");
+  document.getElementById("intraZoneDetail").textContent=(side==="BUY"?"DEMAND":"SUPPLY")+" • "+zone.touches+" reaction";
+
+  const entry=(zone.low+zone.high)/2;
+  const width=Math.max(.5,zone.high-zone.low);
+  const sl=side==="BUY"?zone.low-Math.max(1.5,width*.9):zone.high+Math.max(1.5,width*.9);
+  const tp1=side==="BUY"?entry+7:entry-7;
+  const tp2=side==="BUY"?entry+14:entry-14;
+  const tp3=side==="BUY"?entry+20:entry-20;
+  document.getElementById("intraEntry").textContent=fmt(entry);
+  document.getElementById("intraSL").textContent=fmt(sl);
+  document.getElementById("intraTP1").textContent=fmt(tp1);
+  document.getElementById("intraTP2").textContent=fmt(tp2);
+  document.getElementById("intraTP3").textContent=fmt(tp3);
+
+  const inside=inZone(zone,CURRENT);
+  if(!inside){
+   setIntraText("intraM5","WAIT "+side,"intraWait");
+   const dist=side==="BUY"?Math.max(0,CURRENT-zone.high):Math.max(0,zone.low-CURRENT);
+   document.getElementById("intraM5Detail").textContent="Harga belum masuk M15 zone • ~"+pips(dist)+" pips";
+   setIntraText("intraSignal","WAIT / NO TRADE","intraWait");
+   document.getElementById("intraSignalDetail").textContent="Tunggu price masuk M15 zone";
+   document.getElementById("intraQuality").textContent="🟡 ENTRY QUALITY: WAIT • Jangan kejar harga di luar zone.";
+   return;
+  }
+
+  const m5=await getSignalCandles("5m");
+  const conf=candleConfirm(m5,side);
+  if(conf.ok){
+   setIntraText("intraM5","READY "+side,side==="BUY"?"intraBuy":"intraSell");
+   document.getElementById("intraM5Detail").textContent=conf.score+"/4 confirm • "+conf.text;
+   setIntraText("intraSignal","READY "+side,side==="BUY"?"intraBuy":"intraSell");
+   document.getElementById("intraSignalDetail").textContent="H1 + M15 + M5 CONFIRMED";
+   const grade=conf.score>=3?"A SETUP":"B SETUP";
+   document.getElementById("intraQuality").textContent="🛡️ ENTRY QUALITY: "+grade+" • Intraday "+side+" confirmed. TP ialah panduan teknikal.";
+   const key="INTRA_"+side+"_"+fmt(zone.low);
+   if(alertsEnabled && lastReadySignal!==key){
+    lastReadySignal=key;
+    fireAlert("GOLD INTRADAY READY "+side,"H1 trend + M15 zone + M5 confirmation lengkap.");
+   }
+  }else{
+   setIntraText("intraM5","WAIT "+side,"intraWait");
+   document.getElementById("intraM5Detail").textContent=conf.score+"/4 • "+conf.text;
+   setIntraText("intraSignal","WAIT / NO TRADE","intraWait");
+   document.getElementById("intraSignalDetail").textContent="Harga dalam zone • M5 belum confirm";
+   document.getElementById("intraQuality").textContent="🟠 ENTRY QUALITY: EARLY • Tunggu M5 confirmation cukup.";
+  }
+ }catch(e){
+  console.warn("Intraday scan:",e);
+  setIntraText("intraSignal","WAIT / RECONNECT","intraWait");
+  document.getElementById("intraSignalDetail").textContent="Data intraday sedang reconnect";
+  document.getElementById("intraQuality").textContent="🟡 INTRADAY: data M15/M5 reconnect • sistem utama H1/H4 tidak terjejas.";
+ }
+}
+
 async function runAnalysis(){
  if(analysisBusy)return;
  analysisBusy=true;
@@ -720,6 +868,7 @@ async function runAnalysis(){
    ? "🟢 Harga LIVE • H1/H4 candle sedang reconnect. Zone lama dikekalkan."
    : "⚠️ Live price & candle sedang reconnect.";
   setTimeout(()=>scanReadySignal().catch(()=>{}),50);
+  setTimeout(()=>scanIntraday(h1||[]).catch(()=>{}),120);
   analysisBusy=false;
   return;
  }
@@ -767,13 +916,16 @@ async function runAnalysis(){
   if(s) s.textContent="🟡 READY SIGNAL: data M5/M15 sedang reconnect; Auto Zone H1 kekal aktif.";
  }),50);
 
+ // Intraday module runs separately so it cannot block the stable H1/H4 engine.
+ setTimeout(()=>scanIntraday(h1).catch(e=>console.warn("Intraday async:",e)),120);
+
  if(!LIVE_PRICE_OK){
   st.innerHTML="⚠️ Harga cache digunakan • ALERT & TP TRACKER dipause sehingga live kembali.";
  }else if(BUY&&SELL){
   const closer=(CURRENT-BUY.high<SELL.low-CURRENT)?"BUY":"SELL";
-  st.innerHTML="✅ V6.3.3 LIVE • "+closer+" zone lebih dekat • M5/M15 ready scan aktif.";
+  st.innerHTML="✅ V6.3.4 LIVE • "+closer+" zone lebih dekat • M5/M15 ready scan aktif.";
  }else{
-  st.innerHTML="✅ V6.3.3 LIVE • Menunggu clean H1/H4 zone.";
+  st.innerHTML="✅ V6.3.4 LIVE • Menunggu clean H1/H4 zone.";
  }
  analysisBusy=false;
 }

@@ -1,4 +1,4 @@
-GOLD AUTO ZONE V6.3.3 PWA
+GOLD AUTO ZONE V6.3.4 PWA
 
 FIXED:
 - Prevents overlapping market scans, so the green status should not get stuck at "Scanning..." after zones are already ready.
