@@ -336,7 +336,7 @@ async function updateGoldPrice() {
     try {
 
         const response = await fetch(
-            "https://api.goldprice.dev/v1/spot/XAU-USD-SPOT"
+            "https://xaus.com/api/v1/spot"
         );
 
         if (!response.ok) {
@@ -345,13 +345,11 @@ async function updateGoldPrice() {
 
         const data = await response.json();
 
-        console.log("GOLD DATA:", data);
+        const price = Number(data.spot_usd_oz);
 
-        if (!data.price) {
-            throw new Error("Price tidak dijumpai");
+        if (!price) {
+            throw new Error("Harga XAUUSD tidak dijumpai");
         }
-
-        const price = Number(data.price);
 
         document.getElementById("price").innerHTML =
             price.toLocaleString("en-US", {
@@ -359,9 +357,11 @@ async function updateGoldPrice() {
                 maximumFractionDigits: 2
             });
 
+        console.log("XAUUSD LIVE:", price);
+
     } catch (error) {
 
-        console.error("GOLD ERROR:", error);
+        console.error("XAUUSD ERROR:", error);
 
         document.getElementById("price").innerHTML =
             "ERROR";
@@ -372,7 +372,7 @@ async function updateGoldPrice() {
 
 updateGoldPrice();
 
-setInterval(updateGoldPrice, 60000);
+setInterval(updateGoldPrice, 30000);
 </script>
 
 </body>
