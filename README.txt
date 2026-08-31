@@ -1,23 +1,21 @@
-GOLD AUTO ZONE PWA V2 / V6.4 FIX
+GOLD AUTO ZONE V6.3 PWA + M5/M15 READY SIGNAL
 
-Upload these 5 files to the ROOT of your GitHub repo and replace the old ones:
-1. index.html
-2. manifest.json
-3. sw.js
-4. icon-192.png
-5. icon-512.png
+This version keeps the stable V6.3 H1/H4 zone engine.
 
-What changed:
-- Live price: XAUS + Biquote in parallel.
-- XAUS price request uses a freshness cache-buster.
-- Zone candles: Biquote OHLC first.
-- If Biquote OHLC fails, app automatically uses XAUS 48h intraday data and builds H1/H4 candles itself.
-- Local cached candles are only the last fallback.
-- PWA/install function remains.
-- Alerts/TP tracker still pause if LIVE PRICE itself is stale.
+NEW:
+- M5 and M15 confirmation panel.
+- Signal scan starts only when live price is INSIDE an H1 BUY or SELL zone.
+- READY BUY/SELL requires both M5 AND M15 confirmation.
+- If only one confirms: EARLY / WAIT.
+- If live price is stale: ready signal pauses.
+- Signal scan failure does not stop the H1/H4 Auto Zone app.
+- Existing TP, alerts, tracker and PWA install remain.
 
-After commit:
-1. Wait about 1 minute.
-2. Open the GitHub Pages app.
-3. Refresh once.
-4. Look below CURRENT XAUUSD. It should show LIVE and the source.
+UPLOAD/REPLACE THESE 5 FILES:
+index.html
+manifest.json
+sw.js
+icon-192.png
+icon-512.png
+
+Then Commit changes, wait about 1 minute, refresh the GitHub Pages app.

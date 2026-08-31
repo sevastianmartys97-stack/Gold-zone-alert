@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gold Auto Zone V6.4</title>
+<title>Gold Auto Zone V6.3</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#0a0f14;color:#fff;font-family:Arial,sans-serif}
@@ -44,6 +44,23 @@ footer{padding:15px;text-align:center;font-size:10px;color:#687482}
 <meta name="apple-mobile-web-app-title" content="Gold Zone">
 <link rel="apple-touch-icon" href="./icon-192.png">
 
+
+<style>
+.signalpanel{background:#151f2a;border:1px solid #2d3b49;border-radius:15px;padding:14px;margin-top:12px}
+.signalgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.signalbox{background:#0f1821;border:1px solid #334155;border-radius:12px;padding:12px}
+.signalbox.buyready{border-color:#1f9d63;background:rgba(18,112,71,.12)}
+.signalbox.sellready{border-color:#c94b55;background:rgba(145,35,46,.12)}
+.signalhead{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:800}
+.sigbadge{font-size:12px;font-weight:800;padding:5px 9px;border-radius:999px;background:#283544;color:#cbd5e1}
+.sigbadge.readybuy{background:#0e6f45;color:#bff7da}
+.sigbadge.readysell{background:#842c37;color:#ffd0d5}
+.sigbadge.wait{background:#6b551b;color:#ffe8a3}
+.sigline{font-size:12px;color:#9ca9b8;line-height:1.55;margin-top:8px}
+.signalnote{font-size:11px;color:#8b98a7;margin-top:10px;line-height:1.5}
+@media(max-width:480px){.signalgrid{grid-template-columns:1fr}}
+</style>
+
 </head>
 <body>
 
@@ -55,7 +72,7 @@ footer{padding:15px;text-align:center;font-size:10px;color:#687482}
 
 <div class="app">
 <header>
- <div><h1>🥇 GOLD AUTO ZONE V6.4</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias</div></div>
+ <div><h1>🥇 GOLD AUTO ZONE V6.3 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
  <div class="live">● AUTO</div>
 </header>
 
@@ -91,6 +108,23 @@ style="width:100%;height:100%;border:0" scrolling="no"></iframe>
   <div class="detail" id="sellInfo">Scanning resistance...</div>
   <div class="track" id="sellValidity">Status: —</div>
  </div>
+</div>
+
+
+<div class="signalpanel">
+ <div class="title">⚡ M5 / M15 READY SIGNAL</div>
+ <div class="detail" style="margin-top:5px">Signal hanya dinilai apabila harga berada DALAM Auto BUY/SELL Zone H1.</div>
+ <div class="signalgrid">
+  <div class="signalbox" id="m5Box">
+   <div class="signalhead"><span>M5 CONFIRM</span><span class="sigbadge" id="m5Signal">WAIT</span></div>
+   <div class="sigline" id="m5Detail">Menunggu harga masuk zone...</div>
+  </div>
+  <div class="signalbox" id="m15Box">
+   <div class="signalhead"><span>M15 CONFIRM</span><span class="sigbadge" id="m15Signal">WAIT</span></div>
+   <div class="sigline" id="m15Detail">Menunggu harga masuk zone...</div>
+  </div>
+ </div>
+ <div class="signalnote" id="readySummary">🟡 READY SIGNAL: Menunggu harga masuk zone entry.</div>
 </div>
 
 <div class="targets">
@@ -134,7 +168,7 @@ style="width:100%;height:100%;border:0" scrolling="no"></iframe>
 </div>
 
 <footer>
-V6.3 • Smart dual live-price feed + cache fallback + alerts paused on stale price + TP1 100 / TP2 150 / TP3 200 pips.<br>
+V6.3 PWA • Stable H1/H4 Auto Zone + M5/M15 Ready Signal • TP1 100 / TP2 150 / TP3 200 pips.<br>
 TP/SL ialah cadangan teknikal daripada struktur zone, bukan jaminan hasil.
 </footer>
 </div>
@@ -147,8 +181,7 @@ let lastAlertKey="";
 let BUY=null,SELL=null,CURRENT=null;
 let LIVE_PRICE_OK=false;
 let PRICE_SOURCE="";
-let ZONE_SOURCE="";
-let intradayPromise=null;
+let lastReadySignal="";
 let tracker=JSON.parse(localStorage.getItem("v6tracker")||'{"buy":{},"sell":{}}');
 
 document.getElementById("alertDistance").value=String(alertPips);
@@ -175,7 +208,7 @@ async function getJSON(url, retries=2){
 
 async function getPrice(){
  const readXAUS=async()=>{
-  const d=await getJSON("https://xaus.com/api/v1/spot?compact=1&fresh="+Date.now(),1);
+  const d=await getJSON("https://xaus.com/api/v1/spot?compact=1",1);
   const p=Number(d.spot_usd_oz ?? (d.xau&&d.xau.price));
   if(!Number.isFinite(p)) throw new Error("XAUS price format");
   const state=(d.data_state&&d.data_state.status)||"";
@@ -209,89 +242,27 @@ async function getPrice(){
  localStorage.setItem("v63_last_tick",JSON.stringify(tick));
  return tick;
 }
-function aggregatePoints(points,tf){
- const ms=tf==="4h"?4*60*60*1000:60*60*1000;
- const buckets=new Map();
- for(const pt of points){
-  const rawT=pt.t ?? pt.time ?? pt.timestamp;
-  const t=typeof rawT==="number" ? (rawT<1e12?rawT*1000:rawT) : Date.parse(rawT);
-  const price=Number(pt.p ?? pt.price);
-  if(!Number.isFinite(t)||!Number.isFinite(price)) continue;
-  const k=Math.floor(t/ms)*ms;
-  let b=buckets.get(k);
-  if(!b){
-   b={openTime:k,open:price,high:price,low:price,close:price,volume:0,tickVolume:1,isOpen:false};
-   buckets.set(k,b);
-  }else{
-   b.high=Math.max(b.high,price);
-   b.low=Math.min(b.low,price);
-   b.close=price;
-   b.tickVolume++;
-  }
- }
- const bars=[...buckets.values()].sort((a,b)=>a.openTime-b.openTime);
- // Drop current bucket so pivots use completed candles only.
- if(bars.length){
-  const currentBucket=Math.floor(Date.now()/ms)*ms;
-  if(bars[bars.length-1].openTime===currentBucket) bars.pop();
- }
- return bars;
-}
-
-async function getXAUSIntraday(){
- if(intradayPromise) return intradayPromise;
- intradayPromise=(async()=>{
-  const d=await getJSON("https://xaus.com/api/v1/intraday?symbol=xau&hours=48&fresh="+Date.now(),1);
-  const pts=d.points ?? d.data ?? [];
-  if(!Array.isArray(pts)||pts.length<30) throw new Error("XAUS intraday unavailable");
-  const state=(d.data_state&&d.data_state.status)||"";
-  if(state && state!=="fresh" && d.stale===true) throw new Error("XAUS intraday stale");
-  return pts;
- })();
- try{return await intradayPromise}
- finally{ /* keep promise for this analysis cycle */ }
-}
-
 async function getCandles(tf){
- const key="v64_"+tf+"_bars";
- // 1) Primary OHLC: Biquote
+ const key="v61_"+tf+"_bars";
  try{
-  const d=await getJSON(API+"/XAUUSD/ohlc?interval="+tf+"&limit=240",1);
+  const d=await getJSON(API+"/XAUUSD/ohlc?interval="+tf+"&limit=240",2);
   if(!d||!Array.isArray(d.bars)) throw new Error("OHLC format error");
   const bars=d.bars.filter(b=>!b.isOpen).slice().reverse();
   if(!bars.length) throw new Error("Empty OHLC");
   localStorage.setItem(key,JSON.stringify(bars));
-  localStorage.setItem(key+"_time",String(Date.now()));
-  ZONE_SOURCE="Biquote OHLC";
   return bars;
- }catch(primaryErr){
-  // 2) Fresh fallback: XAUS 48h intraday aggregated into H1/H4.
-  try{
-   const pts=await getXAUSIntraday();
-   const bars=aggregatePoints(pts,tf);
-   const minimum=tf==="4h"?8:24;
-   if(bars.length<minimum) throw new Error("Not enough XAUS bars");
-   localStorage.setItem(key,JSON.stringify(bars));
-   localStorage.setItem(key+"_time",String(Date.now()));
-   ZONE_SOURCE="XAUS intraday";
-   return bars;
-  }catch(fallbackErr){
-   // 3) Last resort: existing V6.4/V6.1 cached candles.
-   for(const oldKey of [key,"v61_"+tf+"_bars"]){
-    const cached=localStorage.getItem(oldKey);
-    if(cached){
-     try{
-      const bars=JSON.parse(cached);
-      if(Array.isArray(bars)&&bars.length){
-       ZONE_SOURCE="Cached candles";
-       return bars;
-      }
-     }catch(_){}
-    }
-   }
-   throw fallbackErr;
+ }catch(e){
+  const cached=localStorage.getItem(key);
+  if(cached){
+   try{
+    const bars=JSON.parse(cached);
+    if(Array.isArray(bars)&&bars.length) return bars;
+   }catch(_){}
   }
+  throw e;
+ }
 }
+
 function cachedTick(){
  for(const key of ["v63_last_tick","v62_last_tick","v61_last_tick"]){
   try{
@@ -518,9 +489,119 @@ function resetTracker(){
  alert("Tracker TP sudah reset.");
 }
 
-async function runAnalysis(){
- intradayPromise=null;
- ZONE_SOURCE="";
+async 
+async function getSignalCandles(tf){
+ // Fast, non-blocking signal scan. It does NOT delay the main H1/H4 engine.
+ try{
+  const d=await getJSON(API+"/XAUUSD/ohlc?interval="+tf+"&limit=80",0);
+  if(!d||!Array.isArray(d.bars)) throw new Error("signal OHLC");
+  const bars=d.bars.filter(b=>!b.isOpen).slice().reverse();
+  if(bars.length<25) throw new Error("not enough signal bars");
+  localStorage.setItem("v63sig_"+tf,JSON.stringify(bars));
+  return bars;
+ }catch(e){
+  const c=localStorage.getItem("v63sig_"+tf);
+  if(c){
+   try{
+    const bars=JSON.parse(c);
+    if(Array.isArray(bars)&&bars.length>=25) return bars;
+   }catch(_){}
+  }
+  throw e;
+ }
+}
+
+function candleConfirm(bars,side){
+ if(!bars||bars.length<25) return {ok:false,score:0,text:"Data belum cukup"};
+ const a=bars[bars.length-1], b=bars[bars.length-2];
+ const open=Number(a.open), close=Number(a.close), high=Number(a.high), low=Number(a.low);
+ const po=Number(b.open), pc=Number(b.close), ph=Number(b.high), pl=Number(b.low);
+ if(![open,close,high,low,po,pc,ph,pl].every(Number.isFinite)) return {ok:false,score:0,text:"Data candle tidak sah"};
+
+ const closes=bars.map(x=>Number(x.close)).filter(Number.isFinite);
+ const sma=n=>closes.slice(-n).reduce((s,v)=>s+v,0)/n;
+ const fast=sma(9), slow=sma(21);
+ let score=0, reasons=[];
+
+ if(side==="BUY"){
+  if(close>open){score++;reasons.push("bull candle")}
+  if(close>ph){score++;reasons.push("break prev high")}
+  if(close>po && open<=pc){score++;reasons.push("bull engulf/reclaim")}
+  if(fast>slow){score++;reasons.push("momentum up")}
+ }else{
+  if(close<open){score++;reasons.push("bear candle")}
+  if(close<pl){score++;reasons.push("break prev low")}
+  if(close<po && open>=pc){score++;reasons.push("bear engulf/reclaim")}
+  if(fast<slow){score++;reasons.push("momentum down")}
+ }
+ return {ok:score>=2,score,text:reasons.length?reasons.join(" • "):"Belum ada confirmation"};
+}
+
+function inZone(z,p){return !!z && p>=z.low && p<=z.high}
+
+function paintSignal(tf,side,res){
+ const badge=document.getElementById(tf+"Signal");
+ const detail=document.getElementById(tf+"Detail");
+ const box=document.getElementById(tf+"Box");
+ box.classList.remove("buyready","sellready");
+ if(!side){
+  badge.className="sigbadge wait";
+  badge.textContent="WAIT";
+  detail.textContent="Menunggu harga masuk zone...";
+  return;
+ }
+ if(res && res.ok){
+  badge.className="sigbadge "+(side==="BUY"?"readybuy":"readysell");
+  badge.textContent="READY "+side;
+  box.classList.add(side==="BUY"?"buyready":"sellready");
+  detail.textContent=res.score+"/4 confirm • "+res.text;
+ }else{
+  badge.className="sigbadge wait";
+  badge.textContent="WAIT "+side;
+  detail.textContent=(res?res.score+"/4 • "+res.text:"Data timeframe belum tersedia");
+ }
+}
+
+async function scanReadySignal(){
+ const summary=document.getElementById("readySummary");
+ if(!LIVE_PRICE_OK || !Number.isFinite(CURRENT)){
+  paintSignal("m5",null,null); paintSignal("m15",null,null);
+  summary.textContent="⏸️ READY SIGNAL dipause — menunggu live price.";
+  return;
+ }
+
+ const side=inZone(BUY,CURRENT)?"BUY":inZone(SELL,CURRENT)?"SELL":null;
+ if(!side){
+  paintSignal("m5",null,null); paintSignal("m15",null,null);
+  summary.textContent="🟡 READY SIGNAL: Menunggu harga masuk Auto BUY/SELL Zone H1.";
+  lastReadySignal="";
+  return;
+ }
+
+ summary.textContent="🔎 Harga dalam "+side+" ZONE • scanning M5 & M15 confirmation...";
+ const rs=await Promise.allSettled([getSignalCandles("5m"),getSignalCandles("15m")]);
+ const r5=rs[0].status==="fulfilled"?candleConfirm(rs[0].value,side):null;
+ const r15=rs[1].status==="fulfilled"?candleConfirm(rs[1].value,side):null;
+ paintSignal("m5",side,r5);
+ paintSignal("m15",side,r15);
+
+ const ready5=!!(r5&&r5.ok), ready15=!!(r15&&r15.ok);
+ // Stronger READY requires BOTH timeframes. One timeframe only = early watch.
+ if(ready5 && ready15){
+  summary.textContent="✅ READY "+side+" • M5 + M15 confirmed dalam H1 zone.";
+  const key=side+"_"+(BUY&&side==="BUY"?fmt(BUY.low):SELL&&fmt(SELL.low));
+  if(lastReadySignal!==key){
+   lastReadySignal=key;
+   if(alertsEnabled) fireAlert("GOLD READY "+side,"M5 + M15 confirmed ketika harga dalam "+side+" zone H1.");
+  }
+ }else if(ready5 || ready15){
+  summary.textContent="🟠 EARLY "+side+" • satu timeframe confirm, tunggu M5 + M15 sehala.";
+ }else{
+  summary.textContent="🟡 WAIT "+side+" • harga sudah dalam zone tetapi confirmation M5/M15 belum cukup.";
+ }
+}
+
+function runAnalysis(){
  const st=document.getElementById("status");
  st.innerHTML="⏳ Scanning H1 & H4 candles...";
  let usingCachedPrice=false;
@@ -540,11 +621,11 @@ async function runAnalysis(){
   if(candleResults[1].status==="fulfilled") h4=candleResults[1].value;
 
   if(!h1){
-   const c=localStorage.getItem("v64_1h_bars")||localStorage.getItem("v61_1h_bars");
+   const c=localStorage.getItem("v61_1h_bars");
    if(c) try{h1=JSON.parse(c)}catch(_){}
   }
   if(!h4){
-   const c=localStorage.getItem("v64_4h_bars")||localStorage.getItem("v61_4h_bars");
+   const c=localStorage.getItem("v61_4h_bars");
    if(c) try{h4=JSON.parse(c)}catch(_){}
   }
   if(!Array.isArray(h1)||!h1.length||!Array.isArray(h4)||!h4.length){
@@ -562,7 +643,7 @@ async function runAnalysis(){
 
   document.getElementById("marketState").innerHTML=
    LIVE_PRICE_OK
-    ? "🟢 LIVE • "+PRICE_SOURCE+(ZONE_SOURCE?" • Zones: "+ZONE_SOURCE:"")
+    ? "🟢 LIVE • "+PRICE_SOURCE
     : "⚠️ STALE/CACHED • Alerts & TP tracker paused";
 
   const b1=trendBias(h1),b4=trendBias(h4);
@@ -601,14 +682,19 @@ async function runAnalysis(){
   updateLiveDistance();
   checkAlerts();
   updateTracker();
+  setTimeout(()=>scanReadySignal().catch(e=>{
+   console.warn("Ready signal scan:",e);
+   const s=document.getElementById("readySummary");
+   if(s) s.textContent="🟡 READY SIGNAL: data M5/M15 sedang reconnect; Auto Zone H1 kekal aktif.";
+  }),50);
 
   if(!LIVE_PRICE_OK){
    st.innerHTML="⚠️ Live price belum fresh. Harga terakhir dipaparkan tetapi ALERT & TP TRACKER dihentikan sementara.";
   }else if(BUY&&SELL){
    const closer=(CURRENT-BUY.high<SELL.low-CURRENT)?"BUY":"SELL";
-   st.innerHTML="✅ V6.4 LIVE • "+closer+" zone lebih dekat • Early alert "+alertPips+" pips • TP tracker aktif.";
+   st.innerHTML="✅ V6.3 LIVE • "+closer+" zone lebih dekat • Early alert "+alertPips+" pips • TP tracker aktif.";
   }else{
-   st.innerHTML="✅ V6.4 LIVE • Menunggu clean H1/H4 zone.";
+   st.innerHTML="✅ V6.3 LIVE • Menunggu clean H1/H4 zone.";
   }
 
  }catch(e){
@@ -622,7 +708,7 @@ async function runAnalysis(){
    st.innerHTML="⚠️ Smart dual-feed reconnecting. Harga terakhir dikekalkan; alert dan TP tracker dipause sehingga live feed kembali.";
   }else{
    document.getElementById("currentPrice").innerHTML="RECONNECTING";
-   st.innerHTML="⚠️ Live feed belum dapat disambungkan. V6.4 akan cuba semula automatik.";
+   st.innerHTML="⚠️ Live feed belum dapat disambungkan. V6.3 akan cuba semula automatik.";
   }
  }
 }
