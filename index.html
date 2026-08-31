@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gold Auto Zone V6</title>
+<title>Gold Auto Zone V6.1</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#0a0f14;color:#fff;font-family:Arial,sans-serif}
@@ -40,7 +40,7 @@ footer{padding:15px;text-align:center;font-size:10px;color:#687482}
 <body>
 <div class="app">
 <header>
- <div><h1>🥇 GOLD AUTO ZONE V6</h1><div class="sub">XAUUSD • Auto Zone • Alert • Fixed TP • Trend Bias</div></div>
+ <div><h1>🥇 GOLD AUTO ZONE V6.1</h1><div class="sub">XAUUSD • Stable Live Feed • Fixed TP • Alert • Trend Bias</div></div>
  <div class="live">● AUTO</div>
 </header>
 
@@ -119,7 +119,7 @@ style="width:100%;height:100%;border:0" scrolling="no"></iframe>
 </div>
 
 <footer>
-V6 • Auto Zone + Trend Bias + Live Distance + Test Alert + TP1 100 / TP2 150 / TP3 200 pips + BE Alert + Zone Invalid.<br>
+V6.1 • Retry live feed + last valid price cache + Auto Zone + TP1 100 / TP2 150 / TP3 200 pips + Alert + Trend Bias.<br>
 TP/SL ialah cadangan teknikal daripada struktur zone, bukan jaminan hasil.
 </footer>
 </div>
@@ -134,16 +134,65 @@ let tracker=JSON.parse(localStorage.getItem("v6tracker")||'{"buy":{},"sell":{}}'
 
 document.getElementById("alertDistance").value=String(alertPips);
 
-async function getJSON(url){
- const r=await fetch(url);
- if(!r.ok) throw new Error("HTTP "+r.status);
- return await r.json();
+function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
+
+async function getJSON(url, retries=2){
+ let lastErr=null;
+ for(let i=0;i<=retries;i++){
+  try{
+   const controller=new AbortController();
+   const timer=setTimeout(()=>controller.abort(),8000);
+   const r=await fetch(url,{cache:"no-store",signal:controller.signal});
+   clearTimeout(timer);
+   if(!r.ok) throw new Error("HTTP "+r.status);
+   return await r.json();
+  }catch(e){
+   lastErr=e;
+   if(i<retries) await sleep(900*(i+1));
+  }
+ }
+ throw lastErr||new Error("Network error");
 }
-async function getPrice(){return await getJSON(API+"/XAUUSD")}
+
+async function getPrice(){
+ const d=await getJSON(API+"/XAUUSD",2);
+ const p=Number(d.mid);
+ if(!Number.isFinite(p)) throw new Error("Price format error");
+ localStorage.setItem("v61_last_price",String(p));
+ localStorage.setItem("v61_last_tick",JSON.stringify(d));
+ return d;
+}
+
 async function getCandles(tf){
- const d=await getJSON(API+"/XAUUSD/ohlc?interval="+tf+"&limit=240");
- if(!d||!Array.isArray(d.bars)) throw new Error("OHLC format error");
- return d.bars.filter(b=>!b.isOpen).slice().reverse();
+ const key="v61_"+tf+"_bars";
+ try{
+  const d=await getJSON(API+"/XAUUSD/ohlc?interval="+tf+"&limit=240",2);
+  if(!d||!Array.isArray(d.bars)) throw new Error("OHLC format error");
+  const bars=d.bars.filter(b=>!b.isOpen).slice().reverse();
+  if(!bars.length) throw new Error("Empty OHLC");
+  localStorage.setItem(key,JSON.stringify(bars));
+  return bars;
+ }catch(e){
+  const cached=localStorage.getItem(key);
+  if(cached){
+   try{
+    const bars=JSON.parse(cached);
+    if(Array.isArray(bars)&&bars.length) return bars;
+   }catch(_){}
+  }
+  throw e;
+ }
+}
+
+function cachedTick(){
+ try{
+  const d=JSON.parse(localStorage.getItem("v61_last_tick")||"null");
+  const p=Number(d&&d.mid);
+  if(Number.isFinite(p)) return d;
+ }catch(_){}
+ const p=Number(localStorage.getItem("v61_last_price"));
+ if(Number.isFinite(p)) return {mid:p,marketState:"cached",source:"last valid price"};
+ return null;
 }
 function atr(bars,p=14){
  if(bars.length<p+2)return 10;
@@ -351,12 +400,44 @@ function resetTracker(){
 async function runAnalysis(){
  const st=document.getElementById("status");
  st.innerHTML="⏳ Scanning H1 & H4 candles...";
- try{
-  const [tick,h1,h4]=await Promise.all([getPrice(),getCandles("1h"),getCandles("4h")]);
-  CURRENT=Number(tick.mid);if(!Number.isFinite(CURRENT))throw new Error("Price format error");
+ let usingCachedPrice=false;
+ let tick=null,h1=null,h4=null;
 
-  document.getElementById("currentPrice").innerHTML=CURRENT.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
-  document.getElementById("marketState").innerHTML="Market: "+(tick.marketState||"unknown")+" • "+(tick.source||"market feed");
+ try{
+  try{
+   tick=await getPrice();
+  }catch(priceErr){
+   tick=cachedTick();
+   if(!tick) throw priceErr;
+   usingCachedPrice=true;
+  }
+
+  const candleResults=await Promise.allSettled([getCandles("1h"),getCandles("4h")]);
+  if(candleResults[0].status==="fulfilled") h1=candleResults[0].value;
+  if(candleResults[1].status==="fulfilled") h4=candleResults[1].value;
+
+  if(!h1){
+   const c=localStorage.getItem("v61_1h_bars");
+   if(c) try{h1=JSON.parse(c)}catch(_){}
+  }
+  if(!h4){
+   const c=localStorage.getItem("v61_4h_bars");
+   if(c) try{h4=JSON.parse(c)}catch(_){}
+  }
+  if(!Array.isArray(h1)||!h1.length||!Array.isArray(h4)||!h4.length){
+   throw new Error("Candle data unavailable");
+  }
+
+  CURRENT=Number(tick.mid);
+  if(!Number.isFinite(CURRENT)) throw new Error("Price format error");
+
+  document.getElementById("currentPrice").innerHTML=CURRENT.toLocaleString("en-US",{
+   minimumFractionDigits:2,maximumFractionDigits:2
+  });
+
+  document.getElementById("marketState").innerHTML=
+   (usingCachedPrice?"⚠️ Reconnecting • Last valid price":"Market: "+(tick.marketState||"unknown"))+
+   " • "+(tick.source||"market feed");
 
   const b1=trendBias(h1),b4=trendBias(h4);
   document.getElementById("h1Bias").innerHTML="H1: "+b1;
@@ -371,7 +452,7 @@ async function runAnalysis(){
    document.getElementById("buyZone").innerHTML=fmt(BUY.low)+" - "+fmt(BUY.high);
    document.getElementById("buyStrength").innerHTML=strength(BUY);
    document.getElementById("buyInfo").innerHTML=BUY.touches+" reaction • ~"+pips(CURRENT-BUY.high)+" pips away";
-  } else {
+  }else{
    document.getElementById("buyZone").innerHTML="No clean zone";
    document.getElementById("buyStrength").innerHTML="—";
    document.getElementById("buyInfo").innerHTML="Tiada support bersih.";
@@ -382,7 +463,7 @@ async function runAnalysis(){
    document.getElementById("sellZone").innerHTML=fmt(SELL.low)+" - "+fmt(SELL.high);
    document.getElementById("sellStrength").innerHTML=strength(SELL);
    document.getElementById("sellInfo").innerHTML=SELL.touches+" reaction • ~"+pips(SELL.low-CURRENT)+" pips away";
-  } else {
+  }else{
    document.getElementById("sellZone").innerHTML="No clean zone";
    document.getElementById("sellStrength").innerHTML="—";
    document.getElementById("sellInfo").innerHTML="Tiada resistance bersih.";
@@ -395,23 +476,32 @@ async function runAnalysis(){
   checkAlerts();
   updateTracker();
 
-  if(BUY&&SELL){
+  if(usingCachedPrice){
+   st.innerHTML="⚠️ API live price sedang reconnect. App guna last valid price sementara; zone & TP dikekalkan.";
+  }else if(BUY&&SELL){
    const closer=(CURRENT-BUY.high<SELL.low-CURRENT)?"BUY":"SELL";
-   st.innerHTML="✅ V6 active • "+closer+" zone lebih dekat • Early alert "+alertPips+" pips • TP tracker aktif.";
+   st.innerHTML="✅ V6.1 LIVE • "+closer+" zone lebih dekat • Early alert "+alertPips+" pips • TP tracker aktif.";
   }else{
-   st.innerHTML="⚠️ V6 active • Menunggu clean H1/H4 zone.";
+   st.innerHTML="✅ V6.1 LIVE • Menunggu clean H1/H4 zone.";
   }
 
  }catch(e){
   console.error(e);
-  document.getElementById("currentPrice").innerHTML="ERROR";
-  st.innerHTML="❌ "+e.message;
+  const fallback=cachedTick();
+  if(fallback&&Number.isFinite(Number(fallback.mid))){
+   CURRENT=Number(fallback.mid);
+   document.getElementById("currentPrice").innerHTML=CURRENT.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+   document.getElementById("marketState").innerHTML="⚠️ Reconnecting • Last valid price";
+   st.innerHTML="⚠️ Sambungan API terganggu. Harga terakhir dikekalkan dan app akan cuba semula automatik.";
+  }else{
+   document.getElementById("currentPrice").innerHTML="RECONNECTING";
+   st.innerHTML="⚠️ Live feed belum dapat disambungkan. V6.1 akan cuba semula automatik.";
+  }
  }
 }
-
 document.getElementById("alertBtn").innerHTML=alertsEnabled?"🔔 ALERT ON":"🔕 ALERT OFF";
 runAnalysis();
-setInterval(runAnalysis,60000);
+setInterval(runAnalysis,45000);
 </script>
 </body>
 </html>
