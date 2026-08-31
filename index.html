@@ -3,203 +3,163 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Gold Zone Alert</title>
 
 <style>
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  background: #0b0f14;
-  color: white;
-  font-family: Arial, sans-serif;
+*{
+  box-sizing:border-box;
 }
 
-.app {
-  max-width: 500px;
-  margin: auto;
-  min-height: 100vh;
-  background: #111720;
+body{
+  margin:0;
+  background:#0b0f14;
+  color:#ffffff;
+  font-family:Arial,sans-serif;
 }
 
-header {
-  padding: 18px 16px;
-  border-bottom: 1px solid #26303b;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.app{
+  max-width:480px;
+  margin:auto;
+  min-height:100vh;
+  background:#111720;
 }
 
-h1 {
-  margin: 0;
-  font-size: 20px;
+header{
+  padding:18px;
+  border-bottom:1px solid #29323d;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
 
-.sub {
-  font-size: 11px;
-  color: #9aa5b3;
-  margin-top: 5px;
+h1{
+  margin:0;
+  font-size:20px;
 }
 
-.live {
-  background: #173b2a;
-  color: #65e39a;
-  padding: 7px 10px;
-  border-radius: 20px;
-  font-size: 11px;
+.sub{
+  color:#8995a5;
+  font-size:12px;
+  margin-top:5px;
 }
 
-.price-box {
-  padding: 20px 16px;
+.live{
+  background:#173b2a;
+  color:#64e29a;
+  padding:8px 10px;
+  border-radius:20px;
+  font-size:11px;
 }
 
-.price {
-  font-size: 32px;
-  font-weight: bold;
+.card{
+  margin:14px;
+  background:#171e27;
+  border:1px solid #293440;
+  border-radius:14px;
+  overflow:hidden;
 }
 
-.status {
-  color: #65e39a;
-  font-size: 13px;
-  margin-top: 5px;
+.tv-wrap{
+  height:420px;
 }
 
-.card {
-  margin: 0 14px 14px;
-  padding: 14px;
-  background: #171e27;
-  border: 1px solid #293440;
-  border-radius: 14px;
+.section{
+  padding:0 14px;
 }
 
-.chart {
-  height: 260px;
-  position: relative;
-  overflow: hidden;
-  background:
-  linear-gradient(#ffffff08 1px, transparent 1px),
-  linear-gradient(90deg, #ffffff08 1px, transparent 1px);
-  background-size: 45px 45px;
+.zone-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
 }
 
-.line {
-  position: absolute;
-  width: 120%;
-  height: 2px;
-  background: white;
-  transform: rotate(-25deg);
-  top: 48%;
-  left: -10%;
+.zone-card{
+  background:#171e27;
+  padding:14px;
+  border-radius:13px;
+  border:1px solid #293440;
 }
 
-.sell-zone {
-  position: absolute;
-  top: 18%;
-  left: 0;
-  width: 100%;
-  padding: 7px;
-  background: #ff4d4d33;
-  border-top: 1px solid #ff7070;
-  border-bottom: 1px solid #ff7070;
-  color: #ff9090;
-  font-size: 11px;
+.buy{
+  border-color:#2d7b57;
 }
 
-.daily-open {
-  position: absolute;
-  top: 48%;
-  left: 0;
-  width: 100%;
-  border-top: 1px dashed #e5c75f;
-  padding: 4px;
-  color: #e5c75f;
-  font-size: 11px;
+.sell{
+  border-color:#7f4148;
 }
 
-.buy-zone {
-  position: absolute;
-  bottom: 15%;
-  left: 0;
-  width: 100%;
-  padding: 7px;
-  background: #39d98a33;
-  border-top: 1px solid #39d98a;
-  border-bottom: 1px solid #39d98a;
-  color: #75e9ad;
-  font-size: 11px;
+.zone-title{
+  font-weight:bold;
+  font-size:13px;
+  margin-bottom:8px;
 }
 
-.zone-container {
-  display: flex;
-  gap: 10px;
-  margin: 14px;
+.zone-price{
+  font-size:18px;
+  font-weight:bold;
 }
 
-.zone {
-  flex: 1;
-  padding: 14px;
-  border-radius: 12px;
-  background: #171e27;
-  border: 1px solid #293440;
+.small{
+  color:#8995a5;
+  font-size:11px;
+  margin-top:7px;
 }
 
-.buy {
-  border-color: #297b55;
+.control{
+  margin:14px;
+  padding:14px;
+  background:#171e27;
+  border:1px solid #293440;
+  border-radius:14px;
 }
 
-.sell {
-  border-color: #7d3c43;
+label{
+  display:block;
+  font-size:11px;
+  color:#8995a5;
+  margin-bottom:5px;
 }
 
-.zone h3 {
-  margin: 0 0 8px;
-  font-size: 13px;
+input{
+  width:100%;
+  padding:11px;
+  margin-bottom:10px;
+  background:#0f151d;
+  color:#fff;
+  border:1px solid #34404d;
+  border-radius:9px;
+  font-size:15px;
 }
 
-.zone-price {
-  font-size: 17px;
-  font-weight: bold;
+button{
+  width:100%;
+  padding:13px;
+  border:0;
+  border-radius:10px;
+  background:#286247;
+  color:#fff;
+  font-weight:bold;
+  font-size:14px;
 }
 
-.small {
-  font-size: 10px;
-  color: #9aa5b3;
-  margin-top: 7px;
+.status{
+  margin:14px;
+  padding:14px;
+  border-radius:13px;
+  background:#193027;
+  border:1px solid #317957;
 }
 
-.alert {
-  margin: 14px;
-  padding: 14px;
-  background: #192f26;
-  border: 1px solid #2f7756;
-  border-radius: 12px;
+.status b{
+  color:#65e7a0;
 }
 
-.buttons {
-  display: flex;
-  gap: 10px;
-  margin: 14px;
-}
-
-button {
-  flex: 1;
-  padding: 14px;
-  border: none;
-  border-radius: 11px;
-  background: #273240;
-  color: white;
-  font-weight: bold;
-}
-
-button.active {
-  background: #256448;
-}
-
-footer {
-  text-align: center;
-  padding: 20px;
-  color: #687586;
-  font-size: 10px;
+footer{
+  text-align:center;
+  color:#657181;
+  font-size:10px;
+  padding:16px;
 }
 </style>
 </head>
@@ -210,169 +170,173 @@ footer {
 
 <header>
   <div>
-    <h1>GOLD ZONE ALERT</h1>
+    <h1>🥇 GOLD ZONE ALERT</h1>
     <div class="sub">XAUUSD • M15 / H1 / H4</div>
   </div>
 
-  <div class="live">● LIVE</div>
+  <div class="live">
+    ● LIVE CHART
+  </div>
 </header>
 
-<div class="price-box">
-  <div class="sub">CURRENT XAUUSD PRICE</div>
-  <div class="price" id="price">Loading...</div>
-  <div class="status">▲ +12.40</div>
-</div>
 
 <div class="card">
+  <div class="tv-wrap">
 
-<div class="chart">
+    <iframe
+      src="https://s.tradingview.com/widgetembed/?symbol=OANDA%3AXAUUSD&interval=15&theme=dark&style=1&timezone=Asia%2FKuala_Lumpur&withdateranges=1&hideideas=1"
+      style="width:100%;height:100%;border:0;"
+      allowtransparency="true"
+      scrolling="no">
+    </iframe>
 
-<div class="line"></div>
-
-<div class="sell-zone">
-🔴 SELL ZONE • 4,665 – 4,680
+  </div>
 </div>
 
-<div class="daily-open">
-🟡 DAILY OPEN • 4,625
-</div>
 
-<div class="buy-zone">
-🟢 BUY ZONE • 4,610 – 4,615
-</div>
+<div class="section">
 
-</div>
+  <div class="zone-grid">
 
-</div>
+    <div class="zone-card buy">
+      <div class="zone-title">🟢 BUY ZONE</div>
+      <div class="zone-price" id="buyText">4610 - 4615</div>
+      <div class="small">Tunggu rejection / confirmation</div>
+    </div>
 
-<div class="alert">
-<b>✓ MARKET STATUS</b>
-<div class="small">
-Harga masih berada di antara BUY dan SELL zone. Tunggu confirmation.
-</div>
-</div>
+    <div class="zone-card sell">
+      <div class="zone-title">🔴 SELL ZONE</div>
+      <div class="zone-price" id="sellText">4665 - 4680</div>
+      <div class="small">Tunggu rejection / confirmation</div>
+    </div>
 
-<div class="zone-container">
-
-<div class="zone buy">
-<h3>🟢 BUY ZONE</h3>
-<div class="zone-price">4610 – 4615</div>
-<div class="small">
-SL: 4598<br>
-TP: 4635 / 4650
-</div>
-</div>
-
-<div class="zone sell">
-<h3>🔴 SELL ZONE</h3>
-<div class="zone-price">4665 – 4680</div>
-<div class="small">
-SL: 4692<br>
-TP: 4645 / 4630
-</div>
-</div>
+  </div>
 
 </div>
 
-<div class="buttons">
 
-<button class="active" id="alertButton"
-onclick="toggleAlert()">
-🔔 ALERT ON
-</button>
+<div class="control">
 
-<button onclick="testAlert()">
-⚡ TEST ALERT
-</button>
+  <label>BUY ZONE LOW</label>
+  <input id="buyLow" type="number" value="4610">
+
+  <label>BUY ZONE HIGH</label>
+  <input id="buyHigh" type="number" value="4615">
+
+  <label>SELL ZONE LOW</label>
+  <input id="sellLow" type="number" value="4665">
+
+  <label>SELL ZONE HIGH</label>
+  <input id="sellHigh" type="number" value="4680">
+
+  <button onclick="saveZones()">
+    💾 SAVE ZONES
+  </button>
 
 </div>
+
+
+<div class="status">
+
+  <b>✓ MARKET STATUS</b>
+
+  <div id="statusText" style="margin-top:7px;color:#c3ccd6;">
+    Zone boleh diubah sendiri. Pantau harga melalui chart live di atas.
+  </div>
+
+</div>
+
 
 <footer>
-GOLD ZONE ALERT • Prototype V1<br>
-Bukan signal trading automatik
+Gold Zone Alert • Prototype V2<br>
+Chart live TradingView • Zone manual
 </footer>
 
 </div>
 
+
 <script>
 
-let alertStatus = true;
+function saveZones(){
 
-function toggleAlert() {
+  const buyLow =
+    document.getElementById("buyLow").value;
 
-alertStatus = !alertStatus;
+  const buyHigh =
+    document.getElementById("buyHigh").value;
 
-let button = document.getElementById("alertButton");
+  const sellLow =
+    document.getElementById("sellLow").value;
 
-if(alertStatus) {
+  const sellHigh =
+    document.getElementById("sellHigh").value;
 
-button.innerHTML = "🔔 ALERT ON";
-button.classList.add("active");
+  document.getElementById("buyText").innerHTML =
+    buyLow + " - " + buyHigh;
 
-} else {
+  document.getElementById("sellText").innerHTML =
+    sellLow + " - " + sellHigh;
 
-button.innerHTML = "🔕 ALERT OFF";
-button.classList.remove("active");
+  localStorage.setItem("buyLow", buyLow);
+  localStorage.setItem("buyHigh", buyHigh);
+  localStorage.setItem("sellLow", sellLow);
+  localStorage.setItem("sellHigh", sellHigh);
 
-}
-
-}
-
-function testAlert() {
-
-if(alertStatus) {
-
-alert("⚡ GOLD ALERT!\n\nXAUUSD sedang menghampiri BUY ZONE 4610 – 4615");
-
-} else {
-
-alert("Alert masih OFF");
+  document.getElementById("statusText").innerHTML =
+    "✅ Zone baru sudah disimpan.";
 
 }
 
+
+window.onload = function(){
+
+  const buyLow =
+    localStorage.getItem("buyLow");
+
+  const buyHigh =
+    localStorage.getItem("buyHigh");
+
+  const sellLow =
+    localStorage.getItem("sellLow");
+
+  const sellHigh =
+    localStorage.getItem("sellHigh");
+
+
+  if(buyLow){
+    document.getElementById("buyLow").value = buyLow;
+  }
+
+  if(buyHigh){
+    document.getElementById("buyHigh").value = buyHigh;
+  }
+
+  if(sellLow){
+    document.getElementById("sellLow").value = sellLow;
+  }
+
+  if(sellHigh){
+    document.getElementById("sellHigh").value = sellHigh;
+  }
+
+
+  if(buyLow && buyHigh){
+
+    document.getElementById("buyText").innerHTML =
+      buyLow + " - " + buyHigh;
+
+  }
+
+
+  if(sellLow && sellHigh){
+
+    document.getElementById("sellText").innerHTML =
+      sellLow + " - " + sellHigh;
+
+  }
+
 }
-async function updateGoldPrice() {
 
-    try {
-
-        const response = await fetch(
-            "https://xaus.com/api/v1/spot"
-        );
-
-        if (!response.ok) {
-            throw new Error("API HTTP " + response.status);
-        }
-
-        const data = await response.json();
-
-        const price = Number(data.spot_usd_oz);
-
-        if (!price) {
-            throw new Error("Harga XAUUSD tidak dijumpai");
-        }
-
-        document.getElementById("price").innerHTML =
-            price.toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-
-        console.log("XAUUSD LIVE:", price);
-
-    } catch (error) {
-
-        console.error("XAUUSD ERROR:", error);
-
-        document.getElementById("price").innerHTML =
-            "ERROR";
-
-    }
-
-}
-
-updateGoldPrice();
-
-setInterval(updateGoldPrice, 30000);
 </script>
 
 </body>
