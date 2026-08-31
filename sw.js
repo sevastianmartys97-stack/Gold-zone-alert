@@ -1,4 +1,4 @@
-const CACHE = 'gold-zone-pwa-v63-signal';
+const CACHE = 'gold-zone-pwa-v631-signal-fix';
 const APP_SHELL = [
   './',
   './index.html',

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gold Auto Zone V6.3</title>
+<title>Gold Auto Zone V6.3.1</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#0a0f14;color:#fff;font-family:Arial,sans-serif}
@@ -72,7 +72,7 @@ footer{padding:15px;text-align:center;font-size:10px;color:#687482}
 
 <div class="app">
 <header>
- <div><h1>🥇 GOLD AUTO ZONE V6.3 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
+ <div><h1>🥇 GOLD AUTO ZONE V6.3.1 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
  <div class="live">● AUTO</div>
 </header>
 
@@ -168,7 +168,7 @@ style="width:100%;height:100%;border:0" scrolling="no"></iframe>
 </div>
 
 <footer>
-V6.3 PWA • Stable H1/H4 Auto Zone + M5/M15 Ready Signal • TP1 100 / TP2 150 / TP3 200 pips.<br>
+V6.3.1 PWA • Price Loading FIX + Stable H1/H4 Auto Zone + M5/M15 Ready Signal • TP1 100 / TP2 150 / TP3 200 pips.<br>
 TP/SL ialah cadangan teknikal daripada struktur zone, bukan jaminan hasil.
 </footer>
 </div>
@@ -207,8 +207,22 @@ async function getJSON(url, retries=2){
 }
 
 async function getPrice(){
+ const readGoldAPI=async()=>{
+  const d=await getJSON("https://api.gold-api.com/price/XAU?fresh="+Date.now(),1);
+  const p=Number(d.price);
+  if(!Number.isFinite(p)) throw new Error("Gold API price format");
+  return {
+   mid:p,
+   marketState:"live",
+   source:"Gold-API",
+   _feed:"Gold-API",
+   _fresh:true,
+   updatedAt:d.updatedAt||null
+  };
+ };
+
  const readXAUS=async()=>{
-  const d=await getJSON("https://xaus.com/api/v1/spot?compact=1",1);
+  const d=await getJSON("https://xaus.com/api/v1/spot?compact=1&fresh="+Date.now(),1);
   const p=Number(d.spot_usd_oz ?? (d.xau&&d.xau.price));
   if(!Number.isFinite(p)) throw new Error("XAUS price format");
   const state=(d.data_state&&d.data_state.status)||"";
@@ -226,20 +240,21 @@ async function getPrice(){
   return {...d,mid:p,_feed:"Biquote",_fresh:true};
  };
 
- // Run BOTH feeds together. Use whichever returns a fresh price first.
  let tick;
  try{
-  tick=await Promise.any([readXAUS(),readBiquote()]);
+  tick=await Promise.any([readGoldAPI(),readXAUS(),readBiquote()]);
  }catch(_){
-  // Promise.any may not exist on a few older browsers; retry sequentially.
-  try{ tick=await readXAUS(); }
-  catch(e1){ tick=await readBiquote(); }
+  try{ tick=await readGoldAPI(); }
+  catch(e0){
+   try{ tick=await readXAUS(); }
+   catch(e1){ tick=await readBiquote(); }
+  }
  }
 
  const p=Number(tick.mid);
  if(!Number.isFinite(p)) throw new Error("No live price");
- localStorage.setItem("v63_last_price",String(p));
- localStorage.setItem("v63_last_tick",JSON.stringify(tick));
+ localStorage.setItem("v631_last_price",String(p));
+ localStorage.setItem("v631_last_tick",JSON.stringify(tick));
  return tick;
 }
 async function getCandles(tf){
@@ -264,7 +279,7 @@ async function getCandles(tf){
 }
 
 function cachedTick(){
- for(const key of ["v63_last_tick","v62_last_tick","v61_last_tick"]){
+ for(const key of ["v631_last_tick","v63_last_tick","v62_last_tick","v61_last_tick"]){
   try{
    const d=JSON.parse(localStorage.getItem(key)||"null");
    const p=Number(d&&d.mid);
@@ -275,7 +290,7 @@ function cachedTick(){
    }
   }catch(_){}
  }
- for(const key of ["v63_last_price","v62_last_price","v61_last_price"]){
+ for(const key of ["v631_last_price","v63_last_price","v62_last_price","v61_last_price"]){
   const p=Number(localStorage.getItem(key));
   if(Number.isFinite(p)) return {mid:p,marketState:"cached",source:"last valid price",_fresh:false,_feed:"CACHE"};
  }
@@ -601,7 +616,7 @@ async function scanReadySignal(){
  }
 }
 
-function runAnalysis(){
+async function runAnalysis(){
  const st=document.getElementById("status");
  st.innerHTML="⏳ Scanning H1 & H4 candles...";
  let usingCachedPrice=false;
