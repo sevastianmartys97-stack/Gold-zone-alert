@@ -130,7 +130,7 @@ footer{padding:15px;text-align:center;font-size:10px;color:#687482}
 
 <div class="app">
 <header>
- <div><h1>🥇 GOLD AUTO ZONE V6.4.3 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
+ <div><h1>🥇 GOLD AUTO ZONE V6.4.4 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
  <div class="live">● AUTO</div>
 </header>
 
@@ -184,7 +184,7 @@ style="width:100%;height:100%;border:0" scrolling="no"></iframe>
 
 <div class="signalpanel">
  <div class="title">⚡ MAIN M5 / M15 READY SIGNAL</div>
- <div class="detail" style="margin-top:5px">MAIN ikut arah H1 yang sama dengan Intraday. Signal dinilai apabila harga masuk H1 zone arah tersebut.</div>
+ <div class="detail" style="margin-top:5px">MAIN ikut arah H1. M5/M15 scan sentiasa aktif; PRE-READY boleh muncul sebelum H1 zone, tetapi READY hanya selepas harga masuk H1 zone.</div>
  <div class="signalgrid">
   <div class="signalbox" id="m5Box">
    <div class="signalhead"><span>M5 CONFIRM</span><span class="sigbadge" id="m5Signal">WAIT</span></div>
@@ -195,7 +195,7 @@ style="width:100%;height:100%;border:0" scrolling="no"></iframe>
    <div class="sigline" id="m15Detail">Menunggu harga masuk zone...</div>
   </div>
  </div>
- <div class="signalnote" id="readySummary">🟡 MAIN: H1 direction → H1 zone → M15 + M5 confirmation.</div>
+ <div class="signalnote" id="readySummary">🟡 MAIN: M5/M15 scan awal → PRE-READY → H1 zone → READY.</div>
 </div>
 
 <div class="intraday" id="intradayCard">
@@ -274,7 +274,7 @@ style="width:100%;height:100%;border:0" scrolling="no"></iframe>
 </div>
 
 <footer>
-V6.4.3 PWA • Simple Active Plan • MAIN + INTRADAY ikut arah H1 yang sama.<br>ENTRY FOCUS ikut H1 • MAIN: H1 zone → M15+M5 • INTRADAY: M15 zone → M5 • Zone lawan hanya reference • TP/SL hanya aktif selepas READY.<br>
+V6.4.4 PWA • Simple Active Plan • MAIN + INTRADAY ikut arah H1 yang sama.<br>ENTRY FOCUS ikut H1 • MAIN: H1 zone → M15+M5 • INTRADAY: M15 zone → M5 • Zone lawan hanya reference • TP/SL hanya aktif selepas READY.<br>
 TP/SL ialah cadangan teknikal daripada struktur zone, bukan jaminan hasil.
 </footer>
 </div>
@@ -857,25 +857,38 @@ async function scanReadySignal(){
   MAIN_STATE="WAIT"; paintSignal("m5",null,null); paintSignal("m15",null,null);
   summary.textContent="⏸️ MAIN dipause — menunggu live price."; updateMasterSummary(); return;
  }
- // V6.4.2: MAIN and INTRADAY use the SAME H1 direction. MAIN waits for the H1 zone.
  const side=unifiedSide();
  const zone=side==="BUY"?BUY:side==="SELL"?SELL:null;
  if(!side || !zone){
   MAIN_STATE="WAIT"; paintSignal("m5",null,null); paintSignal("m15",null,null);
   summary.textContent="🟡 MAIN: H1 belum jelas / H1 zone belum tersedia."; updateMasterSummary(); return;
  }
- if(!inZone(zone,CURRENT)){
-  MAIN_STATE=side+" WATCH"; paintSignal("m5",null,null); paintSignal("m15",null,null);
-  const dist=side==="BUY"?Math.max(0,CURRENT-zone.high):Math.max(0,zone.low-CURRENT);
-  summary.textContent="👀 MAIN "+side+" WATCH • ~"+pips(dist)+" pips ke H1 "+side+" zone."; updateMasterSummary(); return;
- }
- MAIN_STATE="IN ZONE • SCANNING "+side;
- summary.textContent="🔎 MAIN "+side+": harga dalam H1 zone • scanning M5 & M15..."; updateMasterSummary();
+
+ // V6.4.4: M5/M15 sentiasa scan walaupun harga belum masuk H1 zone.
+ // PRE-READY hanya preview momentum; trade/tracker kekal LOCKED sehingga harga masuk zone.
  const rs=await Promise.allSettled([getSignalCandles("5m"),getSignalCandles("15m")]);
  const r5=rs[0].status==="fulfilled"?candleConfirm(rs[0].value,side):null;
  const r15=rs[1].status==="fulfilled"?candleConfirm(rs[1].value,side):null;
  paintSignal("m5",side,r5); paintSignal("m15",side,r15);
  const ready5=!!(r5&&r5.ok), ready15=!!(r15&&r15.ok);
+
+ if(!inZone(zone,CURRENT)){
+  const dist=side==="BUY"?Math.max(0,CURRENT-zone.high):Math.max(0,zone.low-CURRENT);
+  if(ready5 && ready15){
+   MAIN_STATE="PRE-READY "+side;
+   summary.textContent="🟣 PRE-READY "+side+" • M15 + M5 searah • ~"+pips(dist)+" pips ke H1 zone • tunggu zone, tracker LOCKED.";
+  }else if(ready5 || ready15){
+   MAIN_STATE="EARLY WATCH "+side;
+   summary.textContent="🟠 EARLY WATCH "+side+" • satu timeframe confirm • ~"+pips(dist)+" pips ke H1 zone.";
+  }else{
+   MAIN_STATE=side+" WATCH";
+   summary.textContent="👀 MAIN "+side+" WATCH • M5/M15 sedang scan • ~"+pips(dist)+" pips ke H1 "+side+" zone.";
+  }
+  updateMasterSummary(); return;
+ }
+
+ MAIN_STATE="IN ZONE • SCANNING "+side;
+ summary.textContent="🔎 MAIN "+side+": harga dalam H1 zone • semak confirmation M5 & M15..."; updateMasterSummary();
  if(ready5 && ready15){
   MAIN_STATE="READY "+side;
   summary.textContent="✅ MAIN READY "+side+" • H1 zone + M15 + M5 confirmed.";
@@ -887,14 +900,13 @@ async function scanReadySignal(){
   }
  }else if(ready5 || ready15){
   MAIN_STATE="EARLY "+side;
-  summary.textContent="🟠 MAIN EARLY "+side+" • satu timeframe confirm, tracker masih LOCKED.";
+  summary.textContent="🟠 MAIN EARLY "+side+" • dalam H1 zone, satu timeframe confirm • tracker masih LOCKED.";
  }else{
   MAIN_STATE="IN ZONE • WAIT "+side;
   summary.textContent="🟡 MAIN WAIT "+side+" • dalam H1 zone tetapi M5/M15 belum cukup confirmation.";
  }
  updateMasterSummary();
 }
-
 
 function setIntraText(id,text,cls=""){
  const el=document.getElementById(id); if(!el)return;
@@ -1127,9 +1139,9 @@ async function runAnalysis(){
   st.innerHTML="⚠️ Harga cache digunakan • ALERT & TP TRACKER dipause sehingga live kembali.";
  }else if(BUY&&SELL){
   const side=unifiedSide();
-  st.innerHTML="✅ V6.4.3 LIVE • ENTRY FOCUS "+(side||"WAIT")+" • zone lawan = reference sahaja • ready scan aktif.";
+  st.innerHTML="✅ V6.4.4 LIVE • ENTRY FOCUS "+(side||"WAIT")+" • zone lawan = reference sahaja • ready scan aktif.";
  }else{
-  st.innerHTML="✅ V6.4.3 LIVE • Menunggu clean H1/H4 zone.";
+  st.innerHTML="✅ V6.4.4 LIVE • Menunggu clean H1/H4 zone.";
  }
  analysisBusy=false;
 }
