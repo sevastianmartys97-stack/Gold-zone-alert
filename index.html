@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gold Auto Zone V6.4.7</title>
+<title>Gold Auto Zone V6.4.8</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#0a0f14;color:#fff;font-family:Arial,sans-serif}
@@ -145,6 +145,39 @@ h1{font-size:27px;letter-spacing:.4px}.sub{font-size:13px}.live{padding:11px 18p
 @media(max-width:430px){.zoneStack{grid-template-columns:1fr}.mtfRows{grid-template-columns:1fr}.price{font-size:39px}.pullRing{width:116px;height:116px}.chart{height:380px}}
 </style>
 
+
+<style>
+/* V6.4.8 COMPACT MOBILE UI — tuned for phone portrait */
+@media(max-width:760px){
+  body{font-size:12px}
+  .app{max-width:100%;padding-bottom:64px}
+  header{padding:12px 14px;gap:8px}
+  h1{font-size:18px;line-height:1.05}.sub{font-size:10px;line-height:1.35}.live{padding:7px 10px;font-size:10px;white-space:nowrap}
+  .heroGrid{grid-template-columns:1.02fr .92fr .88fr;gap:7px;padding:10px 10px 0;align-items:stretch}
+  .pricebox,.mtfCard,.pullCard{min-height:0;padding:10px;border-radius:11px}
+  .pricebox .sub{font-size:9px}.price{font-size:27px;margin-top:7px;letter-spacing:.2px}.market{font-size:9px;line-height:1.35;margin-top:8px}
+  .badges{gap:4px;margin-top:8px}.badge{font-size:8.5px;padding:5px 6px;white-space:nowrap}
+  .mtfTitle{font-size:10px;margin-bottom:5px;white-space:nowrap}
+  .mtfRows{display:block;margin-top:4px}.tfChip{grid-template-columns:30px 1fr 10px;padding:6px 0;font-size:9.5px;gap:2px}.tfChip span:last-child{font-size:9px}
+  .pullRing{width:76px;height:76px;margin:8px auto 7px}.pullRing:before{inset:8px}.pullPct{font-size:21px}.pullPct small{font-size:7px}.pullState{font-size:10px;margin:5px 0 2px}.pullTag{font-size:8px;padding:4px 6px;margin:5px auto 6px}.pullSub{font-size:8px;line-height:1.35}
+  .directionBar{margin:8px 10px;padding:10px 12px;border-radius:11px}.directionTitle{font-size:12px}.directionSub{font-size:9px;line-height:1.4;margin-top:4px}.dirBadge{font-size:11px;padding:8px 10px}
+  .marketGrid{grid-template-columns:1.55fr .95fr;gap:7px;padding:0 10px 8px}.chart{height:350px}.zoneStack{display:grid;grid-template-columns:1fr;grid-template-rows:1fr 1fr;gap:7px}
+  .zone{padding:10px;border-radius:10px}.zone .title{font-size:10px}.zoneprice{font-size:14px;margin-top:6px}.zoneRole{font-size:7px;padding:3px 5px;margin-top:5px}.strength{font-size:9px;margin-top:5px}.detail,.track{font-size:8px;line-height:1.35;margin-top:5px}
+  .signalpanel{margin:0 10px 8px;padding:10px;border-radius:11px}.signalpanel .title{font-size:11px}.signalpanel>.detail{font-size:8.5px}.signalgrid{gap:7px;margin-top:7px}.signalbox{padding:9px;border-radius:9px}.signalhead{font-size:10px}.sigbadge{font-size:8px;padding:4px 6px}.sigline,.signalnote{font-size:8px;line-height:1.35;margin-top:5px}
+  .intraday,.master,.activePlan,.targets,.controls,.status{margin-left:10px;margin-right:10px}.intradayHead{padding:9px 10px}.intraBox{padding:8px 6px;min-height:82px}.intraValue{font-size:10px}.intraSmall{font-size:8px}.intraPlan>div{padding:7px 4px}.intraPlan .v{font-size:9px}
+  .activePlan{padding:10px}.activePlanBox{padding:10px}.activePlanTitle{font-size:12px}.activePlanStatus{font-size:9px}.activePlanHint{font-size:8.5px}.activePlanLevels{gap:3px;margin-top:8px}.activePlanLevels>div{padding:6px 3px}.activePlanLevels .k{font-size:7px}.activePlanLevels .v{font-size:8.5px}
+  .targets,.controls,.status{padding:10px}.buttons{margin:0 10px 12px;gap:7px}.buttons button{padding:10px;font-size:10px}
+}
+@media(max-width:390px){
+  .heroGrid{grid-template-columns:1fr .92fr .85fr;gap:5px;padding-left:7px;padding-right:7px}
+  .pricebox,.mtfCard,.pullCard{padding:8px}.price{font-size:24px}.mtfTitle{font-size:9px}.tfChip{font-size:8.5px}.tfChip span:last-child{font-size:8px}.pullRing{width:68px;height:68px}.pullPct{font-size:19px}
+  .marketGrid{padding-left:7px;padding-right:7px;gap:5px}.chart{height:320px}.zone{padding:8px}.zoneprice{font-size:12px}.signalpanel{margin-left:7px;margin-right:7px}
+}
+.compactNav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);z-index:9990;width:min(1080px,100%);height:58px;background:rgba(7,15,22,.96);border-top:1px solid #263543;display:grid;grid-template-columns:repeat(5,1fr);backdrop-filter:blur(10px)}
+.compactNav button{background:transparent;border:0;border-radius:0;padding:6px 2px;color:#8998a6;font-size:9px;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.compactNav button span{font-size:17px;line-height:1}.compactNav button.active{color:#45e58a}
+</style>
+
 </head>
 <body>
 
@@ -156,7 +189,7 @@ h1{font-size:27px;letter-spacing:.4px}.sub{font-size:13px}.live{padding:11px 18p
 
 <div class="app">
 <header>
- <div><h1>🥇 GOLD AUTO ZONE V6.4.7 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
+ <div><h1>🥇 GOLD AUTO ZONE V6.4.8 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
  <div class="live">● AUTO</div>
 </header>
 
@@ -1329,11 +1362,20 @@ window.addEventListener("pageshow",()=>{ fastPriceRefresh().catch(()=>{}); });
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=643-logo2').catch(console.error);
+      navigator.serviceWorker.register('./sw.js?v=648-compact').catch(console.error);
     });
   }
 })();
 </script>
+
+
+<div class="compactNav" aria-label="Quick navigation">
+ <button class="active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span>▦</span>Dashboard</button>
+ <button onclick="document.querySelector('.marketGrid')?.scrollIntoView({behavior:'smooth'})"><span>◎</span>Zone</button>
+ <button onclick="document.querySelector('.signalpanel')?.scrollIntoView({behavior:'smooth'})"><span>⚡</span>Signal</button>
+ <button onclick="document.getElementById('alertBtn')?.scrollIntoView({behavior:'smooth'})"><span>♧</span>Alert</button>
+ <button onclick="document.querySelector('.controls')?.scrollIntoView({behavior:'smooth'})"><span>⚙</span>Setting</button>
+</div>
 
 <div id="appToast"></div>
 </body>
