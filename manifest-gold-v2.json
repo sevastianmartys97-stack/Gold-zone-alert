@@ -2,7 +2,7 @@
   "id": "./?gold-icon-v2",
   "name": "Gold Auto Zone",
   "short_name": "Gold Zone",
-  "start_url": "./?app=gold-v644",
+  "start_url": "./?app=gold-v646",
   "scope": "./",
   "display": "standalone",
   "background_color": "#0b1220",
