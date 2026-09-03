@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gold Auto Zone V6.4.3</title>
+<title>Gold Auto Zone V6.4.7</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#0a0f14;color:#fff;font-family:Arial,sans-serif}
@@ -122,6 +122,29 @@ footer{padding:15px;text-align:center;font-size:10px;color:#687482}
 .activePlanHint{margin-top:10px;font-size:11px;color:#a6b2bf;line-height:1.5}
 @media(max-width:480px){.activePlanLevels{grid-template-columns:repeat(5,1fr)}.activePlanLevels .v{font-size:10px}}
 </style>
+
+<style>
+/* V6.4.7 PREMIUM DASHBOARD UI */
+body{background:radial-gradient(circle at 50% 0,#10202d 0,#070c11 58%,#04070a 100%);font-family:Inter,Arial,sans-serif}
+.app{max-width:1080px;margin:0 auto;background:linear-gradient(180deg,#0b141d 0%,#081018 100%);min-height:100vh;box-shadow:0 0 70px rgba(0,0,0,.45)}
+header{padding:22px 28px;background:linear-gradient(180deg,rgba(4,10,15,.96),rgba(8,17,25,.96));border-bottom:1px solid #21303c}
+h1{font-size:27px;letter-spacing:.4px}.sub{font-size:13px}.live{padding:11px 18px;font-size:13px;border:1px solid #2b6d4a;background:rgba(17,67,44,.45)}
+.heroGrid{display:grid;grid-template-columns:1.1fr .9fr .78fr;gap:14px;padding:18px 20px 0}
+.pricebox{padding:22px 20px;background:linear-gradient(145deg,#0d1822,#08121a);border:1px solid #293845;border-radius:15px;margin:0;min-height:290px;box-shadow:inset 0 0 32px rgba(0,0,0,.18)}
+.price{font-size:58px;line-height:1.06;margin-top:10px;color:#f8fafc;letter-spacing:1px}.market{font-size:14px;margin-top:13px}.badges{margin-top:18px}.badge{font-size:12px;border:1px solid #31404d;background:#111d28}
+.mtfWrap{display:contents}.mtfCard,.pullCard{margin:0;min-height:290px;padding:18px;border-radius:15px;background:linear-gradient(145deg,#0d1822,#08121a);border:1px solid #293845}
+.mtfTitle{font-size:14px;letter-spacing:.2px}.mtfRows{display:block;margin-top:12px}.tfChip{display:grid;grid-template-columns:54px 1fr 20px;border:0;border-bottom:1px solid #25323e;border-radius:0;background:transparent;padding:11px 0;font-size:14px}.tfChip:last-child{border-bottom:0}.tfChip span:last-child{text-align:right}.tfBull:after{content:'  ↑';}.tfBear:after{content:'  ↓';}.tfSide:after{content:'  •';}
+.pullCard{text-align:left}.pullRing{--pct:15;position:relative;width:132px;height:132px;margin:16px auto 13px;border-radius:50%;background:conic-gradient(#f5b814 calc(var(--pct)*1%),#24303b 0);display:grid;place-items:center}.pullRing:before{content:'';position:absolute;inset:13px;border-radius:50%;background:#0a141d}.pullPct{position:relative;z-index:1;text-align:center;font-size:34px;font-weight:900}.pullPct small{display:block;font-size:11px;color:#95a3af;font-weight:500;margin-top:2px}.pullState{font-size:17px;text-align:center}.pullTag{display:block;width:max-content;margin:8px auto 12px}.pullMeter{display:none}.pullSub{font-size:12px;line-height:1.6}
+.directionBar{margin:14px 20px 14px;padding:18px 20px;border-radius:15px}.directionTitle{font-size:17px}.directionSub{font-size:13px}.dirBadge{font-size:16px;padding:11px 16px}
+.marketGrid{display:grid;grid-template-columns:1.55fr .95fr;gap:14px;padding:0 20px 14px}.marketGrid .card{margin:0}.chart{height:535px}.zoneStack{display:grid;grid-template-rows:1fr 1fr;gap:12px}.zones{display:contents}.zone{padding:19px;border-radius:14px;background:linear-gradient(145deg,#0d1822,#08121a)}.zoneprice{font-size:24px}.zone .title{font-size:14px}.strength,.detail,.track{font-size:12px}
+.signalpanel{margin:0 20px 14px;padding:18px;border-radius:15px}.signalpanel .title{font-size:16px}.signalgrid{gap:14px}.signalbox{padding:16px}.signalhead{font-size:15px}.sigbadge{font-size:12px;padding:6px 13px}
+.intraday,.master,.activePlan,.targets,.controls,.status,.buttons{max-width:none}
+@media(max-width:760px){
+ .app{max-width:560px}.heroGrid{grid-template-columns:1fr;padding:14px}.pricebox,.mtfCard,.pullCard{min-height:auto}.price{font-size:44px}.mtfWrap{display:contents}.mtfRows{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}.marketGrid{grid-template-columns:1fr;padding:0 14px 14px}.zoneStack{grid-template-columns:1fr 1fr;grid-template-rows:auto}.chart{height:400px}.directionBar{margin:0 14px 14px}.signalpanel{margin:0 14px 14px}header{padding:18px}h1{font-size:20px}.live{font-size:11px;padding:8px 10px}
+}
+@media(max-width:430px){.zoneStack{grid-template-columns:1fr}.mtfRows{grid-template-columns:1fr}.price{font-size:39px}.pullRing{width:116px;height:116px}.chart{height:380px}}
+</style>
+
 </head>
 <body>
 
@@ -133,36 +156,32 @@ footer{padding:15px;text-align:center;font-size:10px;color:#687482}
 
 <div class="app">
 <header>
- <div><h1>🥇 GOLD AUTO ZONE V6.4.6 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
+ <div><h1>🥇 GOLD AUTO ZONE V6.4.7 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
  <div class="live">● AUTO</div>
 </header>
 
-<div class="pricebox">
- <div class="sub">CURRENT XAUUSD</div>
- <div class="price" id="currentPrice">Loading...</div>
- <div class="market" id="marketState">Reading market...</div>
- <div class="sub" id="tickState" style="margin-top:5px;color:#94a3b8">⚡ AUTO UPDATE: 2s • Last tick: —</div>
- <div class="badges">
-  <div class="badge" id="h1Bias">H1: —</div>
-  <div class="badge" id="h4Bias">H4: —</div>
-  <div class="badge" id="liveDistance">Distance: —</div>
+<div class="heroGrid">
+ <div class="pricebox">
+  <div class="sub">CURRENT XAUUSD</div>
+  <div class="price" id="currentPrice">Loading...</div>
+  <div class="market" id="marketState">Reading market...</div>
+  <div class="sub" id="tickState" style="margin-top:7px;color:#94a3b8">⚡ AUTO UPDATE: 2s • Last tick: —</div>
+  <div class="badges"><div class="badge" id="h1Bias">H1: —</div><div class="badge" id="h4Bias">H4: —</div><div class="badge" id="liveDistance">Distance: —</div></div>
  </div>
-</div>
-
-<div class="mtfWrap">
  <div class="mtfCard">
-  <div class="mtfTitle">📊 MULTI-TIMEFRAME TREND</div>
+  <div class="mtfTitle">📈 MULTI TIMEFRAME TREND</div>
   <div class="mtfRows">
-   <div class="tfChip"><span>M5</span><span id="tfM5">SCANNING</span></div>
-   <div class="tfChip"><span>M15</span><span id="tfM15">SCANNING</span></div>
-   <div class="tfChip"><span>M30</span><span id="tfM30">SCANNING</span></div>
-   <div class="tfChip"><span>H1</span><span id="tfH1">SCANNING</span></div>
-   <div class="tfChip"><span>H4</span><span id="tfH4">SCANNING</span></div>
-   <div class="tfChip"><span>DAILY</span><span id="tfD1">SCANNING</span></div>
+   <div class="tfChip"><span>M5</span><span id="tfM5">SCANNING</span><i></i></div>
+   <div class="tfChip"><span>M15</span><span id="tfM15">SCANNING</span><i></i></div>
+   <div class="tfChip"><span>M30</span><span id="tfM30">SCANNING</span><i></i></div>
+   <div class="tfChip"><span>H1</span><span id="tfH1">SCANNING</span><i></i></div>
+   <div class="tfChip"><span>H4</span><span id="tfH4">SCANNING</span><i></i></div>
+   <div class="tfChip"><span>DAILY</span><span id="tfD1">SCANNING</span><i></i></div>
   </div>
  </div>
  <div class="pullCard">
-  <div class="mtfTitle">↩️ PULLBACK INDICATOR</div>
+  <div class="mtfTitle">📉 PULLBACK INDICATOR</div>
+  <div class="pullRing" id="pullRing"><div class="pullPct"><span id="pullPct">15%</span><small>PULLBACK</small></div></div>
   <div class="pullState" id="pullState">SCANNING...</div>
   <span class="pullTag" id="pullTag">WAIT</span>
   <div class="pullMeter"><div class="pullFill" id="pullFill"></div></div>
@@ -180,13 +199,13 @@ footer{padding:15px;text-align:center;font-size:10px;color:#687482}
  </div>
 </div>
 
-<div class="card"><div class="chart">
+<div class="marketGrid">
+ <div class="card"><div class="chart">
 <iframe src="https://s.tradingview.com/widgetembed/?symbol=OANDA%3AXAUUSD&interval=60&theme=dark&style=1&timezone=Asia%2FKuala_Lumpur&withdateranges=1&hideideas=1"
 style="width:100%;height:100%;border:0" scrolling="no"></iframe>
-</div></div>
-
-<div class="zones">
- <div class="zone buy">
+ </div></div>
+ <div class="zoneStack">
+  <div class="zone buy">
   <div class="title">🟢 AUTO BUY ZONE</div>
   <div class="zoneprice" id="buyZone">Scanning...</div>
   <div class="zoneRole reference" id="buyZoneRole">REFERENCE</div>
@@ -202,9 +221,9 @@ style="width:100%;height:100%;border:0" scrolling="no"></iframe>
   <div class="strength" id="sellStrength">—</div>
   <div class="detail" id="sellInfo">Scanning resistance...</div>
   <div class="track" id="sellValidity">Status: —</div>
+  </div>
  </div>
 </div>
-
 
 <div class="signalpanel">
  <div class="title">⚡ MAIN M5 / M15 READY SIGNAL</div>
@@ -298,7 +317,7 @@ style="width:100%;height:100%;border:0" scrolling="no"></iframe>
 </div>
 
 <footer>
-V6.4.6 PWA • Multi-Timeframe + Pullback • MAIN + INTRADAY ikut arah H1 yang sama.<br>ENTRY FOCUS ikut H1 • MAIN: H1 zone → M15+M5 • INTRADAY: M15 zone → M5 • Zone lawan hanya reference • TP/SL hanya aktif selepas READY.<br>
+V6.4.7 PWA • Premium Dashboard + Multi-Timeframe + Pullback • MAIN + INTRADAY ikut arah H1 yang sama.<br>ENTRY FOCUS ikut H1 • MAIN: H1 zone → M15+M5 • INTRADAY: M15 zone → M5 • Zone lawan hanya reference • TP/SL hanya aktif selepas READY.<br>
 TP/SL ialah cadangan teknikal daripada struktur zone, bukan jaminan hasil.
 </footer>
 </div>
@@ -526,14 +545,15 @@ function setTf(id,bias){
 function updatePullbackIndicator(biases){
  const {m5,m15,m30,h1,h4,d1}=biases;
  [ ['tfM5',m5],['tfM15',m15],['tfM30',m30],['tfH1',h1],['tfH4',h4],['tfD1',d1] ].forEach(x=>setTf(...x));
- const state=document.getElementById('pullState'),tag=document.getElementById('pullTag'),fill=document.getElementById('pullFill'),detail=document.getElementById('pullDetail');
+ const state=document.getElementById('pullState'),tag=document.getElementById('pullTag'),fill=document.getElementById('pullFill'),detail=document.getElementById('pullDetail'),ring=document.getElementById('pullRing'),pctEl=document.getElementById('pullPct');
  if(!state||!tag||!fill||!detail)return;
- if(!h4||h4==='—'||h4==='SIDEWAYS'){state.textContent='NO CLEAR PULLBACK';tag.textContent='WAIT';fill.style.width='15%';detail.textContent='H4 belum ada trend yang cukup jelas.';return;}
+ const setPct=(v)=>{fill.style.width=v+'%'; if(ring)ring.style.setProperty('--pct',v); if(pctEl)pctEl.textContent=v+'%';};
+ if(!h4||h4==='—'||h4==='SIDEWAYS'){state.textContent='NO CLEAR PULLBACK';tag.textContent='WAIT';setPct(15);detail.textContent='H4 belum ada trend yang cukup jelas.';return;}
  const opposite=h4==='BULLISH'?'BEARISH':'BULLISH';
  const lower=[m15,m30,h1]; const n=lower.filter(x=>x===opposite).length;
- if(n===0){state.textContent='TREND CONTINUATION';tag.textContent='NO PULLBACK';fill.style.width='12%';detail.textContent='M15/M30/H1 belum menunjukkan retracement melawan H4 '+h4+'.';return;}
+ if(n===0){state.textContent='TREND CONTINUATION';tag.textContent='NO PULLBACK';setPct(12);detail.textContent='M15/M30/H1 belum menunjukkan retracement melawan H4 '+h4+'.';return;}
  const level=n>=3?'STRONG':n===2?'MODERATE':'WEAK'; const pct=n>=3?88:n===2?62:35; const dir=opposite==='BULLISH'?'PULLBACK UP':'PULLBACK DOWN';
- state.textContent=dir; tag.textContent=level+' PULLBACK'; fill.style.width=pct+'%';
+ state.textContent=dir; tag.textContent=level+' PULLBACK'; setPct(pct);
  detail.textContent='H4 '+h4+' • '+n+'/3 timeframe (M15/M30/H1) bergerak '+opposite+'. Ini retracement, bukan READY ENTRY.';
 }
 async function refreshMultiTimeframe(h1,h4){
@@ -1199,9 +1219,9 @@ async function runAnalysis(){
   st.innerHTML="⚠️ Harga cache digunakan • ALERT & TP TRACKER dipause sehingga live kembali.";
  }else if(BUY&&SELL){
   const side=unifiedSide();
-  st.innerHTML="✅ V6.4.6 LIVE • ENTRY FOCUS "+(side||"WAIT")+" • zone lawan = reference sahaja • ready scan aktif.";
+  st.innerHTML="✅ V6.4.7 LIVE • ENTRY FOCUS "+(side||"WAIT")+" • zone lawan = reference sahaja • ready scan aktif.";
  }else{
-  st.innerHTML="✅ V6.4.6 LIVE • Menunggu clean H1/H4 zone.";
+  st.innerHTML="✅ V6.4.7 LIVE • Menunggu clean H1/H4 zone.";
  }
  analysisBusy=false;
 }
