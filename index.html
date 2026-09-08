@@ -2,7 +2,7 @@
 <html lang="ms">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Gold Auto Zone V6.4.8</title>
 <style>
 *{box-sizing:border-box}
@@ -204,12 +204,88 @@ header{width:100%}
 
 
 <style>
-/* V6.5.0 POWER ENTRY — additive UI only; existing engines remain unchanged */
+/* V6.5.1 MOBILE FIT — additive UI only; existing engines remain unchanged */
 .powerPanel{margin:0 14px 14px;border:1px solid #245b47;border-radius:14px;background:linear-gradient(145deg,#0a1b1b,#07131b);padding:12px}
 .powerHead{display:flex;justify-content:space-between;gap:8px;align-items:center}.powerTitle{font-size:13px;font-weight:900}.powerBadge{border-radius:999px;padding:6px 10px;font-size:10px;font-weight:900;background:#27323c;color:#b7c3cf}.powerBadge.hot{background:#0e6f45;color:#d9ffea;box-shadow:0 0 16px rgba(34,197,94,.18)}.powerBadge.strong{background:#6b4f0a;color:#fff0a8}.powerBadge.wait{background:#27323c;color:#b7c3cf}
 .powerGrid{display:grid;grid-template-columns:.72fr 1.28fr;gap:10px;margin-top:10px}.powerScore{border:1px solid #284252;border-radius:12px;padding:12px;text-align:center;background:#09151e}.powerScoreNum{font-size:32px;font-weight:950;line-height:1}.powerScoreLabel{font-size:10px;font-weight:900;margin-top:6px;color:#94a3b8}.powerChecks{border:1px solid #284252;border-radius:12px;padding:9px 11px;background:#09151e}.powerRow{display:grid;grid-template-columns:1fr auto;gap:8px;padding:4px 0;font-size:10px;border-bottom:1px solid rgba(148,163,184,.12)}.powerRow:last-child{border-bottom:0}.powerOk{color:#4ade80}.powerWarn{color:#fbbf24}.powerBad{color:#fb7185}.powerFoot{margin-top:9px;padding:9px 10px;border-radius:10px;background:#111c27;color:#aebdca;font-size:9.5px;line-height:1.45}.powerFoot b{color:#fff}.powerHotText{color:#4ade80!important}.powerStrongText{color:#fbbf24!important}
 @media(min-width:651px){.powerPanel{margin:0 18px 16px}}
 @media(max-width:650px){.powerPanel{margin:0 10px 10px;padding:9px}.powerTitle{font-size:10px}.powerBadge{font-size:8px;padding:5px 7px}.powerGrid{gap:7px;margin-top:7px}.powerScore{padding:9px 5px}.powerScoreNum{font-size:24px}.powerScoreLabel{font-size:8px}.powerChecks{padding:6px 8px}.powerRow{font-size:8px;padding:3px 0}.powerFoot{font-size:8px;padding:7px 8px;margin-top:7px}}
+</style>
+
+
+<style>
+/* V6.5.1 MOBILE FIT — RESPONSIVE UI ONLY. TRADING/ALERT/ZONE/POWER LOGIC UNTOUCHED */
+html,body{margin:0;width:100%;max-width:100%;overflow-x:hidden}
+.app{width:100%;max-width:100%;overflow-x:hidden}
+.heroGrid,.marketGrid{min-width:0}
+.heroGrid>* ,.marketGrid>* ,.zoneStack>* ,.powerGrid>*{min-width:0;max-width:100%}
+.pricebox,.mtfCard,.pullCard,.directionBar,.powerPanel,.card,.zone,.signalpanel{min-width:0;overflow:hidden}
+.mtfTitle,.pullCard,.directionSub,.powerFoot,.powerRow,.detail,.track{overflow-wrap:anywhere;word-break:normal}
+.pullTag{max-width:100%;width:auto;text-align:center;white-space:normal}
+.tfChip{min-width:0}.tfChip>*{min-width:0}
+
+@media(max-width:600px){
+  header{padding:10px 10px!important;align-items:flex-start}
+  header>div:first-child{min-width:0;flex:1}
+  h1{font-size:clamp(16px,4.9vw,21px)!important;line-height:1.05!important;overflow-wrap:anywhere}
+  header .sub{font-size:clamp(8px,2.45vw,10px)!important}
+  .live{flex:0 0 auto;font-size:8.5px!important;padding:6px 8px!important}
+
+  .heroGrid{grid-template-columns:minmax(0,1.04fr) minmax(0,.98fr) minmax(0,.88fr)!important;gap:5px!important;padding:8px 7px 0!important}
+  .pricebox,.mtfCard,.pullCard{padding:8px!important;border-radius:10px!important}
+  .pricebox .sub{font-size:7.5px!important}
+  .price{font-size:clamp(22px,7.2vw,30px)!important;line-height:1.02!important;white-space:nowrap}
+  .market{font-size:7.4px!important;line-height:1.25!important}
+  .badges{gap:3px!important;margin-top:6px!important;display:flex!important;flex-wrap:wrap!important}
+  .badge{font-size:7px!important;padding:4px 5px!important;white-space:nowrap!important}
+
+  .mtfTitle{font-size:8.4px!important;line-height:1.15!important;white-space:normal!important}
+  .mtfRows{margin-top:3px!important}
+  .tfChip{grid-template-columns:24px minmax(0,1fr) 8px!important;padding:4.7px 0!important;font-size:7.7px!important;gap:2px!important}
+  .tfChip span:nth-child(2){white-space:nowrap;overflow:hidden;text-overflow:clip}
+  .tfChip span:last-child{font-size:7px!important}
+
+  .pullRing{width:62px!important;height:62px!important;margin:5px auto!important}
+  .pullRing:before{inset:6px!important}
+  .pullPct{font-size:17px!important}.pullPct small{font-size:6px!important}
+  .pullState{font-size:8.4px!important;line-height:1.1!important;margin:4px 0 2px!important}
+  .pullTag{font-size:6.8px!important;line-height:1.15!important;padding:3px 4px!important;margin:4px auto!important}
+  .pullSub{font-size:6.8px!important;line-height:1.28!important}
+
+  .directionBar{margin:7px!important;padding:9px 10px!important;gap:6px}
+  .directionTitle{font-size:10.5px!important}.directionSub{font-size:7.8px!important;line-height:1.35!important}
+  .dirBadge{font-size:9px!important;padding:7px 8px!important;min-width:72px;text-align:center}
+
+  .powerPanel{margin:0 7px 7px!important;padding:8px!important}
+  .powerTitle{font-size:9.5px!important}.powerBadge{font-size:7.5px!important;padding:4px 6px!important}
+  .powerGrid{grid-template-columns:minmax(0,.72fr) minmax(0,1.28fr)!important;gap:5px!important;margin-top:6px!important}
+  .powerScore{padding:7px 3px!important}.powerScoreNum{font-size:22px!important}.powerScoreLabel{font-size:6.8px!important}
+  .powerChecks{padding:4px 5px!important}.powerRow{font-size:6.8px!important;gap:3px!important;padding:2.5px 0!important}
+  .powerFoot{font-size:7px!important;padding:6px 7px!important;margin-top:6px!important}
+
+  .marketGrid{grid-template-columns:minmax(0,1.55fr) minmax(0,.95fr)!important;gap:5px!important;padding:0 7px 7px!important}
+  .chart{height:315px!important;min-width:0!important}
+  .zoneStack{gap:5px!important;min-width:0!important}
+  .zone{padding:8px!important}.zone .title{font-size:8.5px!important}.zoneprice{font-size:12px!important;line-height:1.15!important}
+  .zoneRole{font-size:6.5px!important;padding:3px 4px!important}.strength{font-size:7.5px!important}.detail,.track{font-size:6.8px!important;line-height:1.25!important}
+
+  .signalpanel{margin:0 7px 7px!important;padding:8px!important}
+  .signalpanel .title{font-size:9.5px!important}.signalpanel>.detail{font-size:7px!important}
+  .signalgrid{gap:5px!important}.signalbox{padding:7px!important}.signalhead{font-size:8.8px!important}.sigbadge{font-size:6.8px!important;padding:3px 5px!important}.sigline,.signalnote{font-size:6.8px!important}
+
+  .compactNav{height:54px!important;width:100%!important;max-width:100%!important;left:0!important;transform:none!important}
+  .compactNav button{font-size:8px!important}.compactNav button span{font-size:15px!important}
+  .app{padding-bottom:58px!important}
+}
+
+@media(max-width:380px){
+  .heroGrid{grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr) minmax(0,.86fr)!important;gap:4px!important;padding-left:5px!important;padding-right:5px!important}
+  .pricebox,.mtfCard,.pullCard{padding:6px!important}
+  .price{font-size:21px!important}.tfChip{font-size:7.1px!important;grid-template-columns:21px minmax(0,1fr) 7px!important}
+  .pullRing{width:56px!important;height:56px!important}.pullPct{font-size:15px!important}.pullSub{font-size:6.2px!important}
+  .marketGrid{padding-left:5px!important;padding-right:5px!important;gap:4px!important}.chart{height:300px!important}.zone{padding:6px!important}.zoneprice{font-size:11px!important}
+  .directionBar,.powerPanel,.signalpanel{margin-left:5px!important;margin-right:5px!important}
+}
 </style>
 
 </head>
@@ -223,7 +299,7 @@ header{width:100%}
 
 <div class="app">
 <header>
- <div><h1>🥇 GOLD AUTO ZONE V6.5.0 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
+ <div><h1>🥇 GOLD AUTO ZONE V6.5.1 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
  <div class="live">● AUTO</div>
 </header>
 
