@@ -147,7 +147,7 @@ h1{font-size:27px;letter-spacing:.4px}.sub{font-size:13px}.live{padding:11px 18p
 
 
 <style>
-/* V6.4.8 COMPACT MOBILE UI — tuned for phone portrait */
+/* V6.4.9 FULL-WIDTH ALIGNED MOBILE UI — UI ONLY */
 @media(max-width:760px){
   body{font-size:12px}
   .app{max-width:100%;padding-bottom:64px}
@@ -178,6 +178,40 @@ h1{font-size:27px;letter-spacing:.4px}.sub{font-size:13px}.live{padding:11px 18p
 .compactNav button span{font-size:17px;line-height:1}.compactNav button.active{color:#45e58a}
 </style>
 
+
+<style>
+/* V6.4.9 ALIGNMENT PATCH — layout only; trading logic untouched */
+html,body{width:100%;max-width:none;overflow-x:hidden}
+*,*:before,*:after{box-sizing:border-box}
+.app{width:100%!important;max-width:none!important;margin:0!important}
+header{width:100%}
+.heroGrid,.directionBar,.marketGrid,.signalpanel,.intraday,.master,.activePlan,.targets,.controls,.status,.buttons{box-sizing:border-box}
+@media(max-width:900px){
+  .app{width:100vw!important;max-width:100vw!important}
+  .heroGrid{width:100%;grid-template-columns:1.02fr .98fr .94fr;gap:8px;padding-left:12px;padding-right:12px}
+  .directionBar{width:auto;margin-left:12px;margin-right:12px}
+  .marketGrid{width:100%;grid-template-columns:1.55fr .95fr;gap:8px;padding-left:12px;padding-right:12px}
+  .signalpanel{width:auto;margin-left:12px;margin-right:12px}
+  .compactNav{width:100vw;max-width:none}
+}
+@media(max-width:520px){
+  .heroGrid{grid-template-columns:1.02fr .98fr .94fr;gap:6px;padding-left:8px;padding-right:8px}
+  .directionBar{margin-left:8px;margin-right:8px}
+  .marketGrid{gap:6px;padding-left:8px;padding-right:8px}
+  .signalpanel{margin-left:8px;margin-right:8px}
+}
+</style>
+
+
+<style>
+/* V6.5.0 POWER ENTRY — additive UI only; existing engines remain unchanged */
+.powerPanel{margin:0 14px 14px;border:1px solid #245b47;border-radius:14px;background:linear-gradient(145deg,#0a1b1b,#07131b);padding:12px}
+.powerHead{display:flex;justify-content:space-between;gap:8px;align-items:center}.powerTitle{font-size:13px;font-weight:900}.powerBadge{border-radius:999px;padding:6px 10px;font-size:10px;font-weight:900;background:#27323c;color:#b7c3cf}.powerBadge.hot{background:#0e6f45;color:#d9ffea;box-shadow:0 0 16px rgba(34,197,94,.18)}.powerBadge.strong{background:#6b4f0a;color:#fff0a8}.powerBadge.wait{background:#27323c;color:#b7c3cf}
+.powerGrid{display:grid;grid-template-columns:.72fr 1.28fr;gap:10px;margin-top:10px}.powerScore{border:1px solid #284252;border-radius:12px;padding:12px;text-align:center;background:#09151e}.powerScoreNum{font-size:32px;font-weight:950;line-height:1}.powerScoreLabel{font-size:10px;font-weight:900;margin-top:6px;color:#94a3b8}.powerChecks{border:1px solid #284252;border-radius:12px;padding:9px 11px;background:#09151e}.powerRow{display:grid;grid-template-columns:1fr auto;gap:8px;padding:4px 0;font-size:10px;border-bottom:1px solid rgba(148,163,184,.12)}.powerRow:last-child{border-bottom:0}.powerOk{color:#4ade80}.powerWarn{color:#fbbf24}.powerBad{color:#fb7185}.powerFoot{margin-top:9px;padding:9px 10px;border-radius:10px;background:#111c27;color:#aebdca;font-size:9.5px;line-height:1.45}.powerFoot b{color:#fff}.powerHotText{color:#4ade80!important}.powerStrongText{color:#fbbf24!important}
+@media(min-width:651px){.powerPanel{margin:0 18px 16px}}
+@media(max-width:650px){.powerPanel{margin:0 10px 10px;padding:9px}.powerTitle{font-size:10px}.powerBadge{font-size:8px;padding:5px 7px}.powerGrid{gap:7px;margin-top:7px}.powerScore{padding:9px 5px}.powerScoreNum{font-size:24px}.powerScoreLabel{font-size:8px}.powerChecks{padding:6px 8px}.powerRow{font-size:8px;padding:3px 0}.powerFoot{font-size:8px;padding:7px 8px;margin-top:7px}}
+</style>
+
 </head>
 <body>
 
@@ -189,7 +223,7 @@ h1{font-size:27px;letter-spacing:.4px}.sub{font-size:13px}.live{padding:11px 18p
 
 <div class="app">
 <header>
- <div><h1>🥇 GOLD AUTO ZONE V6.4.8 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
+ <div><h1>🥇 GOLD AUTO ZONE V6.5.0 PWA</h1><div class="sub">XAUUSD • Dual Price Feed • Fixed TP • Alert • Trend Bias • M5/M15 Ready Signal</div></div>
  <div class="live">● AUTO</div>
 </header>
 
@@ -230,6 +264,16 @@ h1{font-size:27px;letter-spacing:.4px}.sub{font-size:13px}.live{padding:11px 18p
   </div>
   <div class="dirBadge waitdir" id="directionBadge">WAIT</div>
  </div>
+</div>
+
+
+<div class="powerPanel" id="powerPanel">
+ <div class="powerHead"><div class="powerTitle">🔥 POWER ENTRY SIGNAL</div><div class="powerBadge wait" id="powerBadge">SCANNING</div></div>
+ <div class="powerGrid">
+  <div class="powerScore"><div class="powerScoreNum" id="powerScore">0</div><div class="powerScoreLabel" id="powerScoreLabel">WAIT / 100</div></div>
+  <div class="powerChecks" id="powerChecks"><div class="powerRow"><span>Menunggu data confirmation...</span><span>—</span></div></div>
+ </div>
+ <div class="powerFoot" id="powerAdvice"><b>WAIT:</b> POWER ENTRY hanya aktif bila confluence ketat lengkap. Signal ini bukan jaminan dan bukan arahan full margin.</div>
 </div>
 
 <div class="marketGrid">
@@ -366,6 +410,8 @@ let PRICE_SOURCE="";
 let lastReadySignal="";
 let analysisBusy=false;
 let GLOBAL_H1_BIAS="NEUTRAL", GLOBAL_H4_BIAS="NEUTRAL";
+let POWER_MTF={m5:"—",m15:"—",m30:"—",h1:"—",h4:"—",d1:"—"};
+let POWER_CONFIRM={m5:null,m15:null};
 let MAIN_STATE="WAIT", INTRA_STATE="WAIT";
 let activeTrade=JSON.parse(localStorage.getItem("v641_active_trade")||"null");
 let tracker=JSON.parse(localStorage.getItem("v6tracker")||'{"buy":{},"sell":{}}');
@@ -596,7 +642,9 @@ async function refreshMultiTimeframe(h1,h4){
  if(r[1].status==='fulfilled')m15=trendBias(r[1].value);
  if(r[2].status==='fulfilled')m30=trendBias(r[2].value);
  if(r[3].status==='fulfilled')d1=trendBias(r[3].value);
- updatePullbackIndicator({m5:m5||'—',m15:m15||'—',m30:m30||'—',h1:trendBias(h1),h4:trendBias(h4),d1:d1||'—'});
+ POWER_MTF={m5:m5||'—',m15:m15||'—',m30:m30||'—',h1:trendBias(h1),h4:trendBias(h4),d1:d1||'—'};
+ updatePullbackIndicator(POWER_MTF);
+ updatePowerEntry();
 }
 
 function unifiedSide(){
@@ -963,6 +1011,38 @@ function paintSignal(tf,side,res){
  detail.textContent=score+"/4 • "+res.grade+" • "+res.text;
 }
 
+function updatePowerEntry(){
+ const scoreEl=document.getElementById("powerScore"), labelEl=document.getElementById("powerScoreLabel"), badge=document.getElementById("powerBadge"), checks=document.getElementById("powerChecks"), advice=document.getElementById("powerAdvice");
+ if(!scoreEl||!badge||!checks||!advice)return;
+ const side=unifiedSide(), zone=side==="BUY"?BUY:side==="SELL"?SELL:null;
+ if(!side){scoreEl.textContent="0";labelEl.textContent="WAIT / 100";badge.textContent="WAIT";badge.className="powerBadge wait";checks.innerHTML='<div class="powerRow"><span>H1 belum ada arah jelas</span><span>⏳</span></div>';return;}
+ const same=b=>side==="BUY"?b==="BULLISH":b==="BEARISH";
+ const m5=POWER_CONFIRM.m5, m15=POWER_CONFIRM.m15;
+ const m5score=m5?m5.score:0, m15score=m15?m15.score:0;
+ const inside=!!(zone&&Number.isFinite(CURRENT)&&inZone(zone,CURRENT));
+ let score=0, rows=[];
+ const add=(name,pts,ok,partial=false)=>{let got=ok?pts:(partial?Math.round(pts/2):0);score+=got;rows.push('<div class="powerRow"><span class="'+(ok?'powerOk':partial?'powerWarn':'')+'">'+name+'</span><span>'+got+'/'+pts+' '+(ok?'✓':partial?'~':'')+'</span></div>');};
+ add('M5 '+(m5?m5.grade:'WAIT'),20,m5score>=4,m5score===3);
+ add('M15 '+(m15?m15.grade:'WAIT'),20,m15score>=4,m15score===3);
+ add('M30 '+POWER_MTF.m30,15,same(POWER_MTF.m30));
+ add('H1 '+GLOBAL_H1_BIAS,15,same(GLOBAL_H1_BIAS));
+ add('IN '+side+' FOCUS ZONE',15,inside);
+ const pullOpp=GLOBAL_H4_BIAS!=="NEUTRAL"&&GLOBAL_H4_BIAS!=="SIDEWAYS"&&GLOBAL_H4_BIAS!==GLOBAL_H1_BIAS;
+ add('PULLBACK / RETRACEMENT CONTEXT',10,pullOpp);
+ add('H4 ALIGNMENT',5,same(GLOBAL_H4_BIAS));
+ score=Math.min(100,score);
+ const strict=inside&&m5score>=3&&m15score>=3&&same(POWER_MTF.m30)&&same(GLOBAL_H1_BIAS);
+ let state='WAIT', cls='wait', label='SETUP BELUM CUKUP';
+ if(strict&&score>=85){state='🔥 POWER ENTRY '+side;cls='hot';label='VERY STRONG';}
+ else if(strict&&score>=70){state='STRONG '+side;cls='strong';label='STRONG SETUP';}
+ else if(score>=55){state='WATCH '+side;cls='strong';label='BUILDING';}
+ badge.textContent=state;badge.className='powerBadge '+cls;scoreEl.textContent=score;labelEl.textContent=label+' / 100';checks.innerHTML=rows.join('');
+ scoreEl.className='powerScoreNum '+(cls==='hot'?'powerHotText':cls==='strong'?'powerStrongText':'');
+ if(cls==='hot') advice.innerHTML='<b>POWER ENTRY '+side+':</b> confluence ketat lengkap. Jika mahu layer lebih tebal, tetap hadkan risiko dan gunakan SL; <span class="powerBad">FULL MARGIN tidak disyorkan.</span>';
+ else if(cls==='strong') advice.innerHTML='<b>STRONG/WATCH:</b> setup sedang matang tetapi belum tahap POWER. Jangan tambah saiz hanya kerana score tinggi.';
+ else advice.innerHTML='<b>WAIT:</b> belum cukup syarat untuk POWER ENTRY. Kekalkan saiz biasa / tunggu confirmation.';
+}
+
 async function scanReadySignal(){
  const summary=document.getElementById("readySummary");
  if(!LIVE_PRICE_OK || !Number.isFinite(CURRENT)){
@@ -981,7 +1061,9 @@ async function scanReadySignal(){
  const rs=await Promise.allSettled([getSignalCandles("5m"),getSignalCandles("15m")]);
  const r5=rs[0].status==="fulfilled"?candleConfirm(rs[0].value,side):null;
  const r15=rs[1].status==="fulfilled"?candleConfirm(rs[1].value,side):null;
+ POWER_CONFIRM={m5:r5,m15:r15};
  paintSignal("m5",side,r5); paintSignal("m15",side,r15);
+ updatePowerEntry();
  const ready5=!!(r5&&r5.ok), ready15=!!(r15&&r15.ok);
 
  if(!inZone(zone,CURRENT)){
@@ -1252,9 +1334,9 @@ async function runAnalysis(){
   st.innerHTML="⚠️ Harga cache digunakan • ALERT & TP TRACKER dipause sehingga live kembali.";
  }else if(BUY&&SELL){
   const side=unifiedSide();
-  st.innerHTML="✅ V6.4.7 LIVE • ENTRY FOCUS "+(side||"WAIT")+" • zone lawan = reference sahaja • ready scan aktif.";
+  st.innerHTML="✅ V6.5.0 LIVE • ENTRY FOCUS "+(side||"WAIT")+" • zone lawan = reference sahaja • ready scan aktif.";
  }else{
-  st.innerHTML="✅ V6.4.7 LIVE • Menunggu clean H1/H4 zone.";
+  st.innerHTML="✅ V6.5.0 LIVE • Menunggu clean H1/H4 zone.";
  }
  analysisBusy=false;
 }
@@ -1281,7 +1363,7 @@ async function fastPriceRefresh(){
    document.getElementById("marketState").innerHTML="🟢 LIVE • "+PRICE_SOURCE+" • AUTO 2s";
    updateTickState(PRICE_SOURCE);
    // Update only lightweight displays against the latest price.
-   try{ updateValidity(); updateLiveDistance(); checkAlerts(); updateTracker(); }catch(_){ }
+   try{ updateValidity(); updateLiveDistance(); checkAlerts(); updateTracker(); updatePowerEntry(); }catch(_){ }
   }
  }catch(e){
   console.warn("Fast price refresh:",e);
@@ -1362,7 +1444,7 @@ window.addEventListener("pageshow",()=>{ fastPriceRefresh().catch(()=>{}); });
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=648-compact').catch(console.error);
+      navigator.serviceWorker.register('./sw.js?v=650-power-entry').catch(console.error);
     });
   }
 })();
